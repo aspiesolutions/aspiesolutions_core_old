@@ -60,3 +60,37 @@ impl<T,E> Recoverable<T,E> {
         self.errors.as_ref()
     }
 }
+
+impl<T,E> std::convert::From<Vec<Result<T,E>>> for Recoverable<T,E> {
+    fn from(results: Vec<Result<T,E>>) -> Self {
+        let mut data = Vec::<T>::new();
+        let mut errors = Vec::<E>::new();
+        for result in results {
+            match result {
+                Ok(t) => data.push(t),
+                Err(e) => errors.push(e)
+            }
+        }
+        Self {
+            data,
+            errors
+        }
+        
+    }
+}
+impl<T,E> std::convert::From<(T,Vec<E>)> for Recoverable<T,E> {
+    fn from((t,errors): (T,Vec<E>)) -> Self {
+        Self {
+            data:vec![t],
+            errors
+        }
+    }
+}
+impl<T,E> std::convert::From<(Vec<T>,Vec<E>)> for Recoverable<T,E> {
+    fn from((data,errors): (Vec<T>,Vec<E>)) -> Self {
+        Self {
+            data,
+            errors
+        }
+    }
+}
