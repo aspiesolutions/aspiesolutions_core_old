@@ -6,6 +6,10 @@
 #[cfg(feature = "rocket")]
 pub mod rocket;
 
+
+type Results<T,E> = Vec<Result<T,E>>;
+
+
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "debug", derive(Debug))]
 #[cfg_attr(feature = "clone", derive(Clone))]
@@ -61,8 +65,8 @@ impl<T,E> Recoverable<T,E> {
     }
 }
 
-impl<T,E> std::convert::From<Vec<Result<T,E>>> for Recoverable<T,E> {
-    fn from(results: Vec<Result<T,E>>) -> Self {
+impl<T,E> std::convert::From<Results<T,E>> for Recoverable<T,E> {
+    fn from(results: Results<T,E>) -> Self {
         let mut data = Vec::<T>::new();
         let mut errors = Vec::<E>::new();
         for result in results {

@@ -36,4 +36,10 @@ impl <T,E> std::convert::From<crate::Recoverable<T,E>> for self::Recoverable<T,E
         Self{inner:MsgPack(r)}
     }
 }
+
+impl<T,E> std::convert::From<crate::Results<T,E>> for self::Recoverable<T,E> {
+    fn from(results: crate::Results<T,E>) -> Self {
+        Self{inner:MsgPack(results.into())}
+    }
+}
 type PagedResult<T,E> = Result<Paged<T>,E>;
