@@ -31,4 +31,9 @@ impl<T> Paged<T> where T: serde::Serialize + for <'de> serde::Deserialize<'de> {
   }
 }
 
+impl <T,E> std::convert::From<crate::Recoverable<T,E>> for self::Recoverable<T,E> {
+    fn from(r: Recoverable<T,E>) -> Self {
+        Self{inner:MsgPack(r)}
+    }
+}
 type PagedResult<T,E> = Result<Paged<T>,E>;
