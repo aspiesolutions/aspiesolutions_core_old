@@ -1,4 +1,4 @@
-#[cfg(feature="sea_orm")]
+#[cfg(feature="sea-orm")]
 pub use aspiesolutions_entity::sea_orm;
 
 #[derive(Debug, PartialEq, Eq, thiserror::Error)]
