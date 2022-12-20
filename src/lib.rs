@@ -5,27 +5,10 @@ pub mod forms;
 pub mod error;
 // pub mod user;
 
+pub type DataWithError<T> = (T,crate::error::Error);
+pub type Recoverable<T> = Result<T,DataWithError<T>>;
+pub type RecoverableMany<T> = Vec<Recoverable<T>>;
 
-
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "debug", derive(Debug))]
-#[cfg_attr(feature = "clone", derive(Clone))]
-#[cfg_attr(feature="rocket",derive(rocket::Responder))]
-#[derive(PartialEq, Eq)]
-pub enum Recoverable<T,E,F=E> {
-    Ok{data:T},
-    OkWithError{data:T, error:E},
-    Failure{error:F}
-    
-}
-
-
-// Recoverable<Vec::user::Model,ErrorsWithOptionalData<crate::error>>
-
-
-// type Results<T,E> = Vec<Result<T,E>>; 
-// type ErrorsWithOptionalData<T,E> = Vec<ErrorWithOptionalData<T,E>>;
-// type Errors<E> = Vec<E>;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "debug", derive(Debug))]
@@ -92,4 +75,7 @@ impl<'a,'b,T,E> ErrorWithOptionalData<T,E> {
 
 }
 
-pub type CreateManyUserRecoverable = Recoverable<Vec<aspiesolutions_entity::user::Model>,Vec<crate::error::Error>>;
+pub type CreateManyUser = Result<RecoverableMany<aspiesolutions_entity::user::Model>,crate::error::Error>;
+
+pub type DeleteManyUser =  Result<RecoverableMany<aspiesolutions_entity::user::Id>,crate::error::Error>;
+pub type SearchUser = PagedResult<aspiesolutions_entity::user::Model,crate::error::Error>;
