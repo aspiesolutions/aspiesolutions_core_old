@@ -3,6 +3,7 @@
 pub mod server;
 pub mod forms;
 pub mod error;
+pub use aspiesolutions_entity::sea_orm;
 // pub mod user;
 
 pub type DataWithError<T> = (T,crate::error::Error);
