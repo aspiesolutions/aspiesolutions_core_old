@@ -1,15 +1,31 @@
-#![deny(rust_2018_idioms)]
-#![deny(unused_imports)]
+#![deny(warnings)]
 #![allow(dead_code)]
-#![deny(unused_assignments)]
+pub mod server;
+pub mod forms;
+pub mod error;
+// pub mod user;
 
-#[cfg(feature = "rocket")]
-pub mod rocket;
 
 
-type Results<T,E> = Vec<Result<T,E>>; 
-type ErrorsWithOptionalData<T,E> = Vec<ErrorWithOptionalData<T,E>>;
-type Errors<E> = Vec<E>;
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[cfg_attr(feature = "clone", derive(Clone))]
+#[cfg_attr(feature="rocket",derive(rocket::Responder))]
+#[derive(PartialEq, Eq)]
+pub enum Recoverable<T,E,F=E> {
+    Ok{data:T},
+    OkWithError{data:T, error:E},
+    Failure{error:F}
+    
+}
+
+
+// Recoverable<Vec::user::Model,ErrorsWithOptionalData<crate::error>>
+
+
+// type Results<T,E> = Vec<Result<T,E>>; 
+// type ErrorsWithOptionalData<T,E> = Vec<ErrorWithOptionalData<T,E>>;
+// type Errors<E> = Vec<E>;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "debug", derive(Debug))]
@@ -45,14 +61,7 @@ impl<'a,'b,'c,'d,T> Paged<T> {
 }
 pub type PagedResult<T, E> = Result<Paged<T>, E>;
 
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "debug", derive(Debug))]
-#[cfg_attr(feature = "clone", derive(Clone))]
-#[derive(PartialEq, Eq)]
-pub struct Recoverable<T, E> {
-    data: Vec<T>,
-    errors: Errors<E>,
-}
+
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "debug", derive(Debug))]
 #[cfg_attr(feature = "clone", derive(Clone))]
@@ -83,49 +92,4 @@ impl<'a,'b,T,E> ErrorWithOptionalData<T,E> {
 
 }
 
-impl<T,E> Recoverable<T,E> {
-    pub fn new(data:Vec<T>,errors: Vec<E>) -> Self {
-        Self{data,errors}
-    }
-    pub fn data<'a>(&'a self) -> &'a Vec<T> {
-        self.data.as_ref()
-    }
-    pub fn errors<'a>(&'a self) -> &'a Vec<E>{
-        self.errors.as_ref()
-    }
-}
-
-impl<T,E> std::convert::From<Results<T,E>> for Recoverable<T,E> {
-    fn from(results: Results<T,E>) -> Self {
-        let mut data = Vec::<T>::new();
-        let mut errors = Vec::<E>::new();
-        for result in results {
-            match result {
-                Ok(t) => data.push(t),
-                Err(e) => errors.push(e)
-            }
-        }
-        Self {
-            data,
-            errors
-        }
-        
-    }
-}
-// impl<T,E> std::convert::From<(T,E)> for Recoverable<T,E> {
-//     fn from((t,errors): (T,E)) -> Self {
-//         Self {
-//             data:vec![t],
-//             errors
-//         }
-//     }
-// }
-// impl<T,E> std::convert::From<(Vec<T>,E)> for Recoverable<T,E> {
-//     fn from((data,errors): (Vec<T>,E)) -> Self {
-//         Self {
-//             data,
-//             errors
-//         }
-//     }
-// }
-type MaybeRecoverable<T,E> = Result<Recoverable<T,E>,E>;
+pub type CreateManyUserRecoverable = Recoverable<Vec<aspiesolutions_entity::user::Model>,Vec<crate::error::Error>>;
