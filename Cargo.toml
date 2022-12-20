@@ -11,6 +11,7 @@ edition = "2021"
 serde=["dep:serde"]
 rocket=["dep:rocket"]
 reqwest=["dep:reqwest"]
+sea-orm=[]
 clone=[]
 debug=[]
 
