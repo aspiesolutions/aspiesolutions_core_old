@@ -84,7 +84,8 @@ pub type CreateManyUser = Result<
 
 
 pub type CreateOrUpdateUserDataWithError = (crate::forms::CreateOrUpdateUserForm,crate::error::Error);
-pub type CreateOrUpdateUserList = Vec<Result<aspiesolutions_entity::user::Model,CreateOrUpdateUserDataWithError>>;
+pub type CreateOrUpdateUserResult = Result<aspiesolutions_entity::user::Model,CreateOrUpdateUserDataWithError>;
+pub type CreateOrUpdateUserList = Vec<CreateOrUpdateUserResult>;
 
 pub type DeleteManyUser =
     Result<RecoverableMany<aspiesolutions_entity::user::Id>, crate::error::Error>;
