@@ -99,7 +99,6 @@ impl UserSearchFormData {
 #[cfg_attr(feature = "rocket", derive(rocket::FromForm))]
 #[derive(PartialEq, Eq, Clone)]
 pub struct UserSearchForm {
-    #[cfg_attr(feature = "serde", serde(borrow))]
     user: Option<UserSearchFormData>,
     page: Option<u32>,
     limit: Option<u16>,
