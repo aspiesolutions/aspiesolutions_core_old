@@ -3,7 +3,7 @@
 pub mod server;
 pub mod forms;
 pub mod error;
-pub use aspiesolutions_entity::sea_orm;
+
 // pub mod user;
 
 pub type DataWithError<T> = (T,crate::error::Error);
@@ -76,7 +76,7 @@ impl<'a,'b,T,E> ErrorWithOptionalData<T,E> {
 
 }
 
-pub type CreateManyUser = Result<RecoverableMany<aspiesolutions_entity::user::Model>,crate::error::Error>;
+pub type CreateManyUser<'a> = Result<Vec<Result<aspiesolutions_entity::user::Model, (crate::forms::CreateUserForm<'a>,crate::error::Error)>>,crate::error::Error>;
 
 pub type DeleteManyUser =  Result<RecoverableMany<aspiesolutions_entity::user::Id>,crate::error::Error>;
 pub type SearchUser = PagedResult<aspiesolutions_entity::user::Model,crate::error::Error>;
