@@ -1,6 +1,5 @@
 // use serde::{Deserialize, Serialize};
 pub mod user;
-use std::borrow::Cow;
 pub use user::{
     CreateOrUpdateUserForm, CreateOrUpdateUserFormData, CreateUserForm, DeleteUserForm,
     UpdateUserForm, UserSearchForm, UserSearchFormData,
@@ -9,17 +8,15 @@ pub use user::{
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "rocket", derive(rocket::FromForm))]
 #[derive(PartialEq, Eq, Clone)]
-pub struct StringSearchFilter<'r> {
-    #[cfg_attr(feature = "serde", serde(borrow))]
-    contains: Cow<'r, str>,
-    #[cfg_attr(feature = "serde", serde(borrow))]
-    equals: Cow<'r, str>,
+pub struct StringSearchFilter {
+    contains: String,
+    equals: String,
 }
-impl<'r> StringSearchFilter<'r> {
-    pub fn contains(&'r self) -> &Cow<'r, str> {
-        &self.contains
+impl StringSearchFilter {
+    pub fn contains(&self) -> &str {
+        self.contains.as_str()
     }
-    pub fn equals(&'r self) -> &Cow<'r, str> {
-        &self.equals
+    pub fn equals(&self) -> &str {
+        self.equals.as_str()
     }
 }

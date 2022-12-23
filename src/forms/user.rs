@@ -1,33 +1,32 @@
 use super::StringSearchFilter;
-use std::borrow::Cow;
 // use this type alias to allow for defaults while also allowing to specify a different type in case the type changes
 type UserId = aspiesolutions_entity::user::Id;
 #[cfg_attr(feature = "rocket", derive(rocket::FromForm))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(PartialEq, Eq)]
-pub struct CreateUserForm<'r> {
-    #[cfg_attr(feature = "serde", serde(borrow))]
-    name: Cow<'r, str>,
+pub struct CreateUserForm {
+    // #[cfg_attr(feature = "serde", serde(borrow))]
+    name: String,
 }
 
-impl<'r> CreateUserForm<'r> {
+impl CreateUserForm {
     pub fn new() -> Self {
         Self {
-            name: Cow::Owned(String::new()),
+            name: String::new(),
         }
     }
-    pub fn set_name(mut self, str: &'r str) -> Self {
-        self.name = Cow::Borrowed(str);
+    pub fn set_name(mut self, s: &str) -> Self {
+        self.name = s.to_string();
         self
     }
-    pub fn name(&'r self) -> Cow<'r, str> {
+    pub fn name(&self) -> String {
         self.name.clone()
     }
 }
 
 #[cfg_attr(feature = "rocket", derive(rocket::FromForm))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug,PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct CreateOrUpdateUserFormData<Id = UserId> {
     id: Option<Id>,
     name: String,
@@ -41,15 +40,14 @@ impl<Id> CreateOrUpdateUserFormData<Id> {
     }
 }
 
-
 #[cfg_attr(feature = "rocket", derive(rocket::FromForm))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(PartialEq, Eq, Clone)]
 pub struct CreateOrUpdateUserForm<Id: Clone = UserId> {
     user: CreateOrUpdateUserFormData<Id>,
 }
-impl<'r> CreateOrUpdateUserForm {
-    pub fn user(&'r self) -> &'r CreateOrUpdateUserFormData {
+impl CreateOrUpdateUserForm {
+    pub fn user(&self) -> &CreateOrUpdateUserFormData {
         &self.user
     }
 }
@@ -57,16 +55,16 @@ impl<'r> CreateOrUpdateUserForm {
 #[cfg_attr(feature = "rocket", derive(rocket::FromForm))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(PartialEq, Eq, Clone)]
-pub struct UpdateUserForm<'r, Id = UserId> {
+pub struct UpdateUserForm<Id = UserId> {
     id: Id,
-    name: &'r str,
+    name: String,
 }
-impl<'r, Id> UpdateUserForm<'r, Id> {
-    pub fn id(&'r self) -> &'r Id {
+impl<Id> UpdateUserForm<Id> {
+    pub fn id(&self) -> &Id {
         &self.id
     }
-    pub fn name(&'r self) -> &'r str {
-        &self.name
+    pub fn name(&self) -> &str {
+        self.name.as_str()
     }
 }
 
@@ -88,12 +86,11 @@ impl<Id> DeleteUserForm<Id> {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "rocket", derive(rocket::FromForm))]
 #[derive(PartialEq, Eq, Clone)]
-pub struct UserSearchFormData<'r> {
-    #[cfg_attr(feature = "serde", serde(borrow))]
-    name: StringSearchFilter<'r>,
+pub struct UserSearchFormData {
+    name: StringSearchFilter,
 }
-impl<'r> UserSearchFormData<'r> {
-    pub fn name(&'r self) -> &'r StringSearchFilter<'r> {
+impl UserSearchFormData {
+    pub fn name<'r>(&'r self) -> &'r StringSearchFilter {
         &self.name
     }
 }
@@ -101,20 +98,20 @@ impl<'r> UserSearchFormData<'r> {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "rocket", derive(rocket::FromForm))]
 #[derive(PartialEq, Eq, Clone)]
-pub struct UserSearchForm<'r> {
+pub struct UserSearchForm {
     #[cfg_attr(feature = "serde", serde(borrow))]
-    user: Option<UserSearchFormData<'r>>,
+    user: Option<UserSearchFormData>,
     page: Option<u32>,
     limit: Option<u16>,
 }
-impl<'r> UserSearchForm<'r> {
-    pub fn user(&'r self) -> Option<&'r UserSearchFormData<'r>> {
+impl UserSearchForm {
+    pub fn user(&self) -> Option<&UserSearchFormData> {
         self.user.as_ref()
     }
-    pub fn limit(&'r self) -> Option<&'r u16> {
+    pub fn limit<'b>(&self) -> Option<&u16> {
         self.limit.as_ref()
     }
-    pub fn page(&'r self) -> Option<&'r u32> {
+    pub fn page(&self) -> Option<&u32> {
         self.page.as_ref()
     }
 }
