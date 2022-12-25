@@ -4,9 +4,13 @@ pub mod error;
 pub mod forms;
 pub mod server;
 
+
+pub use forms::{CreateUserForm,CreateOrUpdateUserForm, UpdateUserForm,DeleteUserForm};
+
+pub use crate::error::Error;
 // pub mod user;
 
-pub type DataWithError<T> = (T, crate::error::Error);
+pub type DataWithError<T> = (T, Error);
 pub type Recoverable<T> = Result<T, DataWithError<T>>;
 pub type RecoverableMany<T> = Vec<Recoverable<T>>;
 
@@ -72,21 +76,34 @@ impl<'a, 'b, T, E> ErrorWithOptionalData<T, E> {
     }
 }
 
-pub type CreateManyUser = Result<
-    Vec<
-        Result<
-            aspiesolutions_entity::user::Model,
-            (crate::forms::user::CreateUserForm, crate::error::Error),
-        >,
-    >,
-    crate::error::Error,
->;
+// TYPEALIASES
+pub type ManyData<Input,Output> = Vec<Result<Output,(Input,Error)>>;
+pub type ManyResult<Input,Output> = Result<ManyData<Input,Output>,Error>;
+pub type SingleData<Input,Output> = Result<Output,(Input,Error)>;
+pub type SingleResult<Input,Output> = Result<SingleData<Input,Output>,Error>;
+
+// SEARCH
+pub type SearchUserData = Paged<aspiesolutions_entity::user::Model>;
+pub type SearchUserResult = Result<SearchUserData,Error>;
+//CREATE
+pub type CreateManyUserData = ManyData<CreateUserForm,aspiesolutions_entity::user::Model>;
+pub type CreateManyUserResult = ManyResult<CreateUserForm,aspiesolutions_entity::user::Model>;
+pub type CreateUserData = SingleData<CreateUserForm,aspiesolutions_entity::user::Model>;
+pub type CreateUserResult = SingleResult<CreateUserForm,aspiesolutions_entity::user::Model>;
+// CREATE OR UPDATE
+pub type CreateOrUpdateManyUserData = ManyData<aspiesolutions_entity::user::Model,CreateOrUpdateUserForm>;
+pub type CreateOrUpdateManyUserResult = ManyResult<aspiesolutions_entity::user::Model,CreateOrUpdateUserForm>;
+pub type CreateOrUpdateUserData= ManyData<aspiesolutions_entity::user::Model,CreateOrUpdateUserForm>;
+pub type CreateOrUpdateUserResult = SingleResult<aspiesolutions_entity::user::Model,CreateOrUpdateUserForm>;
+// UPDATE
+pub type UpdateManyUserData = ManyData<aspiesolutions_entity::user::Model,UpdateUserForm>;
+pub type UpdateManyUserResult = ManyResult<aspiesolutions_entity::user::Model,UpdateUserForm>;
+pub type UpdateUserData= ManyData<aspiesolutions_entity::user::Model,UpdateUserForm>;
+pub type UpdateUserResult = SingleResult<aspiesolutions_entity::user::Model,UpdateUserForm>;
+// DELETE
+pub type DeleteManyUserData = ManyData<aspiesolutions_entity::user::Model,DeleteUserForm>;
+pub type DeleteManyUserResult = ManyResult<aspiesolutions_entity::user::Model,DeleteUserForm>;
+pub type DeleteUserData= ManyData<aspiesolutions_entity::user::Model,DeleteUserForm>;
+pub type DeleteUserResult = SingleResult<aspiesolutions_entity::user::Model,DeleteUserForm>;
 
 
-pub type CreateOrUpdateUserDataWithError = (crate::forms::CreateOrUpdateUserForm,crate::error::Error);
-pub type CreateOrUpdateUserResult = Result<aspiesolutions_entity::user::Model,CreateOrUpdateUserDataWithError>;
-pub type CreateOrUpdateUserList = Vec<CreateOrUpdateUserResult>;
-
-pub type DeleteManyUser =
-    Result<RecoverableMany<aspiesolutions_entity::user::Id>, crate::error::Error>;
-pub type SearchUser = PagedResult<aspiesolutions_entity::user::Model, crate::error::Error>;
