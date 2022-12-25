@@ -1,7 +1,7 @@
 // use serde::{Deserialize, Serialize};
 pub mod user;
 pub use user::{
-    CreateOrUpdateUserForm, CreateOrUpdateUserFormData, CreateUserForm, DeleteUserForm,
+    CreateOrUpdateUserForm, CreateOrUpdateUserFormData, CreateUserForm, CreateUserFormData, DeleteUserForm,
     UpdateUserForm, UserSearchForm, UserSearchFormData,
 };
 

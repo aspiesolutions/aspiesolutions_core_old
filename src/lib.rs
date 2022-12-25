@@ -4,7 +4,7 @@ pub mod error;
 pub mod forms;
 pub mod server;
 
-pub use forms::{CreateOrUpdateUserForm, CreateUserForm, DeleteUserForm, UpdateUserForm};
+pub use forms::{CreateOrUpdateUserForm, CreateUserForm, CreateUserFormData, DeleteUserForm, UpdateUserForm};
 
 pub use crate::error::Error;
 // pub mod user;
