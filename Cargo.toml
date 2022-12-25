@@ -12,7 +12,7 @@ serde=["dep:serde"]
 rmp-serde=["dep:rmp-serde"]
 rocket=["dep:rocket"]
 reqwest=["dep:reqwest"]
-sea-orm=[]
+sea-orm=["aspiesolutions_entity/sea-orm"]
 clone=[]
 debug=[]
 
@@ -20,7 +20,7 @@ debug=[]
 reqwest = { version = "0.11.13", default-features=false, optional = true }
 rocket = { version = "0.5.0-rc.2", default-features=false, features=["msgpack"], optional = true }
 # aspiesolutions_error={version="0.1.0"}
-aspiesolutions_entity={version="0.2"}
+aspiesolutions_entity={version="0.2.18",default_features=false}
 serde = { version = "1.0.150", optional = true, features = ["derive"] }
 rmp-serde = {version="1.1.1",optional=true}
 thiserror = "1.0.38"
