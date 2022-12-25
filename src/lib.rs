@@ -91,19 +91,18 @@ pub type CreateManyUserResult = ManyResult<CreateUserForm,aspiesolutions_entity:
 pub type CreateUserData = SingleData<CreateUserForm,aspiesolutions_entity::user::Model>;
 pub type CreateUserResult = SingleResult<CreateUserForm,aspiesolutions_entity::user::Model>;
 // CREATE OR UPDATE
-pub type CreateOrUpdateManyUserData = ManyData<aspiesolutions_entity::user::Model,CreateOrUpdateUserForm>;
-pub type CreateOrUpdateManyUserResult = ManyResult<aspiesolutions_entity::user::Model,CreateOrUpdateUserForm>;
-pub type CreateOrUpdateUserData= ManyData<aspiesolutions_entity::user::Model,CreateOrUpdateUserForm>;
-pub type CreateOrUpdateUserResult = SingleResult<aspiesolutions_entity::user::Model,CreateOrUpdateUserForm>;
+pub type CreateOrUpdateManyUserData = ManyData<CreateOrUpdateUserForm,aspiesolutions_entity::user::Model>;
+pub type CreateOrUpdateManyUserResult = ManyResult<CreateOrUpdateUserForm,aspiesolutions_entity::user::Model>;
+pub type CreateOrUpdateUserData= ManyData<CreateOrUpdateUserForm,aspiesolutions_entity::user::Model>;
+pub type CreateOrUpdateUserResult = SingleResult<CreateOrUpdateUserForm,aspiesolutions_entity::user::Model>;
 // UPDATE
-pub type UpdateManyUserData = ManyData<aspiesolutions_entity::user::Model,UpdateUserForm>;
-pub type UpdateManyUserResult = ManyResult<aspiesolutions_entity::user::Model,UpdateUserForm>;
-pub type UpdateUserData= ManyData<aspiesolutions_entity::user::Model,UpdateUserForm>;
-pub type UpdateUserResult = SingleResult<aspiesolutions_entity::user::Model,UpdateUserForm>;
+pub type UpdateManyUserData = ManyData<UpdateUserForm,aspiesolutions_entity::user::Model>;
+pub type UpdateManyUserResult = ManyResult<UpdateUserForm,aspiesolutions_entity::user::Model>;
+pub type UpdateUserData= ManyData<UpdateUserForm,aspiesolutions_entity::user::Model>;
+pub type UpdateUserResult = SingleResult<UpdateUserForm,aspiesolutions_entity::user::Model>;
 // DELETE
-pub type DeleteManyUserData = ManyData<aspiesolutions_entity::user::Model,DeleteUserForm>;
-pub type DeleteManyUserResult = ManyResult<aspiesolutions_entity::user::Model,DeleteUserForm>;
-pub type DeleteUserData= ManyData<aspiesolutions_entity::user::Model,DeleteUserForm>;
-pub type DeleteUserResult = SingleResult<aspiesolutions_entity::user::Model,DeleteUserForm>;
-
+pub type DeleteManyUserData = ManyData<DeleteUserForm,aspiesolutions_entity::user::Model>;
+pub type DeleteManyUserResult = ManyResult<DeleteUserForm,aspiesolutions_entity::user::Model>;
+pub type DeleteUserData= ManyData<DeleteUserForm,aspiesolutions_entity::user::Model>;
+pub type DeleteUserResult = SingleResult<DeleteUserForm,aspiesolutions_entity::user::Model>;
 
