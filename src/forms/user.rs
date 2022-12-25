@@ -6,10 +6,29 @@ type UserId = aspiesolutions_entity::user::Id;
 #[derive(PartialEq, Eq, Clone)]
 pub struct CreateUserForm {
     // #[cfg_attr(feature = "serde", serde(borrow))]
-    name: String,
+    id: uuid::Uuid,
+    data:CreateUserFormData,
+}
+impl CreateUserForm {
+    pub fn new(data: CreateUserFormData) -> Self {
+        let id = uuid::Uuid::new_v4();
+        Self {
+            id,
+            data
+        }
+    }
+    pub fn data(&self) -> &CreateUserFormData {
+        &self.data
+    }
+}
+#[cfg_attr(feature = "rocket", derive(rocket::FromForm))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(PartialEq, Eq, Clone)]
+pub struct CreateUserFormData {
+    name:String
 }
 
-impl CreateUserForm {
+impl CreateUserFormData {
     pub fn new() -> Self {
         Self {
             name: String::new(),
