@@ -76,6 +76,12 @@ impl std::convert::From<reqwest::Error> for ClientError {
         Self::GeneralError(e.to_string())
     }
 }
+#[cfg(feature = "reqwest")]
+impl std::convert::From<reqwest::Error> for Error {
+    fn from(e: reqwest::Error) -> Self {
+        Self::ClientError(e.into())
+    }
+}
 #[cfg(feature="rmp-serde")]
 impl std::convert::From<rmp_serde::encode::Error> for Error {
     fn from(e: rmp_serde::encode::Error) -> Self {
