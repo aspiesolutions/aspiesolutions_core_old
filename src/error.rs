@@ -76,13 +76,13 @@ impl std::convert::From<reqwest::Error> for ClientError {
         Self::GeneralError(e.to_string())
     }
 }
-
+#[cfg(feature="rmp-serde")]
 impl std::convert::From<rmp_serde::encode::Error> for Error {
     fn from(e: rmp_serde::encode::Error) -> Self {
         Self::MsgPackEncodeError(e.to_string())
     }
 }
-
+#[cfg(feature="rmp-serde")]
 impl std::convert::From<rmp_serde::decode::Error> for Error {
     fn from(e: rmp_serde::decode::Error) -> Self {
         Self::MsgPackDecodeError(e.to_string())

@@ -9,6 +9,7 @@ edition = "2021"
 
 [features]
 serde=["dep:serde"]
+rmp-serde=["dep:rmp-serde"]
 rocket=["dep:rocket"]
 reqwest=["dep:reqwest"]
 sea-orm=[]
@@ -21,7 +22,7 @@ rocket = { version = "0.5.0-rc.2", default-features=false, features=["msgpack"],
 # aspiesolutions_error={version="0.1.0"}
 aspiesolutions_entity={version="0.2"}
 serde = { version = "1.0.150", optional = true, features = ["derive"] }
-rmp-serde = "1.1.1"
+rmp-serde = {version="1.1.1",optional=true}
 thiserror = "1.0.38"
 [patch.crates-io]
 aspiesolutions_entity={path="../aspiesolutions_entity"}
