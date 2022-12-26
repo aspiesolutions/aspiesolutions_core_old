@@ -11,6 +11,7 @@ pub struct CreateUserForm {
 }
 impl CreateUserForm {
     pub fn new(data: CreateUserFormData) -> Self {
+        // this is only used to uniquely identify the form
         let id = uuid::Uuid::new_v4();
         Self {
             id,
@@ -22,6 +23,14 @@ impl CreateUserForm {
     }
     pub fn data(&self) -> &CreateUserFormData {
         &self.data
+    }
+    // shortcut accessor method instead of mutating the underlying data
+    pub fn set_name(&mut self,s:&str) {
+        self.data.set_name(s);
+    }
+    // shortcut getter instead of having to go through data()
+    pub fn get_name(&self) -> &str {
+        &self.data.name
     }
 }
 #[cfg_attr(feature = "rocket", derive(rocket::FromForm))]
@@ -37,12 +46,11 @@ impl CreateUserFormData {
             name: String::new(),
         }
     }
-    pub fn set_name(mut self, s: &str) -> Self {
+    pub fn set_name(&mut self, s: &str){
         self.name = s.to_string();
-        self
     }
-    pub fn name(&self) -> String {
-        self.name.clone()
+    pub fn name(&self) -> &str {
+        &self.name
     }
 }
 
