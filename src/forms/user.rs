@@ -17,6 +17,9 @@ impl CreateUserForm {
             data
         }
     }
+    pub fn id(&self) -> &uuid::Uuid {
+        &self.id
+    }
     pub fn data(&self) -> &CreateUserFormData {
         &self.data
     }
