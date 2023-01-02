@@ -1,17 +1,23 @@
 use super::StringSearchFilter;
 // use this type alias to allow for defaults while also allowing to specify a different type in case the type changes
+// where do we send the form
+pub const CREATE_USER_METHOD:&str = "POST";
+pub const CREATE_SINGLE_USER_ENDPOINT: &str = "/user/create";
+pub const CREATE_MANY_USER_ENDPOINT: &str = "/users/create";
+
+
+
 type UserId = aspiesolutions_entity::user::Id;
 #[cfg_attr(feature = "rocket", derive(rocket::FromForm))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(PartialEq, Eq, Clone)]
 pub struct CreateUserForm {
-    // #[cfg_attr(feature = "serde", serde(borrow))]
     id: uuid::Uuid,
     data:CreateUserFormData,
 }
 impl CreateUserForm {
     pub fn new(data: CreateUserFormData) -> Self {
-        // this is only used to uniquely identify the form
+        // Used to Uniquely identify the form
         let id = uuid::Uuid::new_v4();
         Self {
             id,
