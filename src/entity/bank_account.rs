@@ -1,15 +1,16 @@
 #[cfg(feature = "sea-orm")]
 use sea_orm::prelude::*;
-use serde::{Deserialize, Serialize};
 pub type Id = i32;
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+#[derive(PartialEq, Debug)]
+#[cfg_attr(feature="clone", derive(Clone))]
+#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(feature = "sea-orm", sea_orm(table_name = "bank_accounts"))]
 pub struct Model {
     #[cfg_attr(feature = "sea-orm", sea_orm(primary_key, auto_increment = true))]
     id: Id,
-    user_id: crate::user::Id,
+    user_id: super::user::Id,
     bank_name: String,
     nick_name: Option<String>,
     #[cfg_attr(feature = "sea-orm", sea_orm(unique))]
@@ -17,7 +18,9 @@ pub struct Model {
     account_type: AccountType,
 }
 #[repr(i8)]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug,  PartialEq)]
+#[cfg_attr(feature="clone", derive(Clone))]
+#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(EnumIter, DeriveActiveEnum))]
 #[cfg_attr(feature = "sea-orm", sea_orm(rs_type = "i8", db_type = "TinyInteger"))]
 pub enum AccountType {
@@ -51,20 +54,20 @@ impl std::str::FromStr for AccountType {
 #[derive(Debug)]
 #[cfg_attr(feature = "sea-orm", derive(DeriveRelation, EnumIter))]
 pub enum Relation {
-    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "crate::transaction::Entity"))]
+    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "super::transaction::Entity"))]
     Transactions,
     #[cfg_attr(
         feature = "sea-orm",
         sea_orm(
-            belongs_to = "crate::user::Entity",
+            belongs_to = "super::user::Entity",
             from = "Column::UserId",
-            to = "crate::user::Column::Id"
+            to = "super::user::Column::Id"
         )
     )]
     User,
 }
 #[cfg(feature = "sea-orm")]
-impl Related<crate::user::Entity> for Entity {
+impl Related<super::user::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::User.def()
     }

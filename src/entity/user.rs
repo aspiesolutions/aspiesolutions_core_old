@@ -1,9 +1,10 @@
 #[cfg(feature = "sea-orm")]
 use sea_orm::{prelude::*, ConnectionTrait, DatabaseTransaction, FromQueryResult};
-use serde::{Deserialize, Serialize};
 pub type Id = i64;
 pub type Role = u8;
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(feature = "sea-orm", sea_orm(table_name = "users"))]
 pub struct Model {
@@ -11,10 +12,9 @@ pub struct Model {
     id: Id,
     name: String,
 }
-#[repr(transparent)]
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
+#[derive(PartialEq, Clone)]
+#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(FromQueryResult))]
-#[serde(transparent)]
 pub struct IdOnly {
     inner: Id,
 }
@@ -42,19 +42,19 @@ impl std::default::Default for Model {
 #[derive(Debug)]
 #[cfg_attr(feature = "sea-orm", derive(DeriveRelation, EnumIter))]
 pub enum Relation {
-    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "crate::bank_account::Entity"))]
+    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "super::bank_account::Entity"))]
     BankAccounts,
-    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "crate::bill::Entity"))]
+    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "super::bill::Entity"))]
     Bills,
-    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "crate::subscription::Entity"))]
+    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "super::subscription::Entity"))]
     Subscriptions,
-    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "crate::transaction::Entity"))]
+    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "super::transaction::Entity"))]
     Transactions,
-    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "crate::user_passwords::Entity"))]
+    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "super::user_passwords::Entity"))]
     Passwords
 }
 #[cfg(feature = "sea-orm")]
-impl Related<crate::bank_account::Entity> for Entity {
+impl Related<super::bank_account::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::BankAccounts.def()
     }
@@ -75,25 +75,25 @@ impl ActiveModelBehavior for ActiveModel {}
 pub async fn delete_with_related(id: Id, txn: &DatabaseTransaction) -> Result<Id, sea_orm::DbErr> {
     // use sea_orm::QueryTrait;
 
-    crate::transaction::Entity::delete_many()
-        .filter(crate::transaction::Column::UserId.eq(id))
+    super::transaction::Entity::delete_many()
+        .filter(super::transaction::Column::UserId.eq(id))
         .exec(txn)
         .await?;
-    crate::subscription_entries::Entity::delete_many()
+    super::subscription_entries::Entity::delete_many()
         // BUG: THIS WILL NOT WORK AS EXPECTED
-        .filter(crate::subscription_entries::Column::Id.eq(id))
+        .filter(super::subscription_entries::Column::Id.eq(id))
         .exec(txn)
         .await?;
-    crate::subscription::Entity::delete_many()
-        .filter(crate::subscription::Column::UserId.eq(id))
+    super::subscription::Entity::delete_many()
+        .filter(super::subscription::Column::UserId.eq(id))
         .exec(txn)
         .await?;
-    crate::bill::Entity::delete_many()
-        .filter(crate::bill::Column::UserId.eq(id))
+    super::bill::Entity::delete_many()
+        .filter(super::bill::Column::UserId.eq(id))
         .exec(txn)
         .await?;
-    crate::user_passwords::Entity::delete_many()
-    .filter(crate::user_passwords::Column::UserId.eq(id))
+    super::user_passwords::Entity::delete_many()
+    .filter(super::user_passwords::Column::UserId.eq(id))
     .exec(txn).await?;
 
     Entity::delete_by_id(id).exec(txn).await?;

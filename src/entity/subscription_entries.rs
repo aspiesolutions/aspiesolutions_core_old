@@ -1,8 +1,6 @@
 // use chrono::{Datelike, Duration, Timelike};
 #[cfg(feature = "sea-orm")]
 use sea_orm::prelude::*;
-use serde::{Deserialize, Serialize};
-
 // a subscription could be thought of as a  bill that ocurrs more than once on a regular basis
 
 // possible strategies are
@@ -18,25 +16,29 @@ use serde::{Deserialize, Serialize};
 
 pub type Id = i32;
 
-use crate::currency::Currency;
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+use super::currency::Currency;
+#[derive(Debug, PartialEq)]
+#[cfg_attr(feature="clone", derive(Clone))]
+#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(feature = "sea-orm", sea_orm(table_name = "subscription_entry"))]
 pub struct Model {
     #[cfg_attr(feature = "sea-orm", sea_orm(primary_key, auto_increment = true))]
     id: Id,
-    subscription_id: crate::subscription::Id,
+    subscription_id: super::subscription::Id,
     date: chrono::DateTime<chrono::Utc>,
     frequency: Frequency,
     frequency_value: i64,
     amount: rust_decimal::Decimal,
     currency: Currency,
-    transaction_id: Option<crate::transaction::Id>,
+    transaction_id: Option<super::transaction::Id>,
     cancelled: bool,
 }
 
 #[repr(i8)]
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Debug, PartialEq)]
+#[cfg_attr(feature="clone", derive(Clone))]
+#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveActiveEnum, EnumIter))]
 #[cfg_attr(feature = "sea-orm", sea_orm(rs_type = "i8", db_type = "TinyInteger"))]
 pub enum Frequency {
@@ -46,36 +48,37 @@ pub enum Frequency {
     Weekly = -125,
     Yearly = -124,
 }
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Debug)]
+#[cfg_attr(feature="clone", derive(Clone))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveRelation, EnumIter))]
 pub enum Relation {
-    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "crate::transaction::Entity"))]
+    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "super::transaction::Entity"))]
     Transaction,
     #[cfg_attr(
         feature = "sea-orm",
         sea_orm(
-            belongs_to = "crate::subscription::Entity",
+            belongs_to = "super::subscription::Entity",
             from = "Column::SubscriptionId",
-            to = "crate::subscription::Column::Id"
+            to = "super::subscription::Column::Id"
         )
     )]
     Subscription,
 }
 #[cfg(feature = "sea-orm")]
-impl Related<crate::transaction::Entity> for Entity {
+impl Related<super::transaction::Entity> for Entity {
     fn to() -> RelationDef {
-        crate::subscription_entry_transactions::Relation::Entry.def()
+        super::subscription_entry_transactions::Relation::Entry.def()
     }
     fn via() -> Option<RelationDef> {
         Some(
-            crate::subscription_entry_transactions::Relation::Transaction
+            super::subscription_entry_transactions::Relation::Transaction
                 .def()
                 .rev(),
         )
     }
 }
 #[cfg(feature = "sea-orm")]
-impl Related<crate::subscription::Entity> for Entity {
+impl Related<super::subscription::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Subscription.def()
     }

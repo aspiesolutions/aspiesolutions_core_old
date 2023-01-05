@@ -1,8 +1,9 @@
 #[cfg(feature = "sea-orm")]
 use sea_orm::prelude::*;
 pub type Id = i32;
-pub type UserId = crate::user::Id;
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
+pub type UserId = super::user::Id;
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(feature = "sea-orm", sea_orm(table_name = "user_passwords"))]
 pub struct Model {
@@ -32,12 +33,12 @@ impl Model {
 #[derive(Debug)]
 #[cfg_attr(feature = "sea-orm", derive(DeriveRelation, EnumIter))]
 pub enum Relation {
-    #[cfg_attr(feature = "sea-orm", sea_orm(belongs_to = "crate::user::Entity",from="Column::UserId",to="crate::user::Column::Id"))]
+    #[cfg_attr(feature = "sea-orm", sea_orm(belongs_to = "super::user::Entity",from="Column::UserId",to="super::user::Column::Id"))]
     User,
 }
 
 
-impl Related<crate::user::Entity> for self::Entity {
+impl Related<super::user::Entity> for self::Entity {
     fn to() -> RelationDef {
         self::Relation::User.def()
     }

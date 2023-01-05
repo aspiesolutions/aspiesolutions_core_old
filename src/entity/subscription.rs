@@ -1,7 +1,5 @@
 #[cfg(feature = "sea-orm")]
 use sea_orm::prelude::*;
-use serde::{Deserialize, Serialize};
-
 // a subscription could be thought of as a  bill that ocurrs more than once on a regular basis
 
 // possible strategies are
@@ -17,14 +15,16 @@ use serde::{Deserialize, Serialize};
 
 pub type Id = i32;
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq)]
+#[cfg_attr(feature="clone", derive(Clone))]
+#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(feature = "sea-orm", sea_orm(table_name = "subscriptions"))]
 pub struct Model {
     #[cfg_attr(feature = "sea-orm", sea_orm(primary_key, auto_increment = true))]
     id: Id,
     date: chrono::DateTime<chrono::Utc>,
-    user_id: crate::user::Id,
+    user_id: super::user::Id,
 }
 #[derive(Copy, Clone, Debug)]
 #[cfg_attr(feature = "sea-orm", derive(DeriveRelation, EnumIter))]
@@ -32,27 +32,23 @@ pub struct Model {
 pub enum Relation {
     #[cfg_attr(
         feature = "sea-orm",
-        sea_orm(has_many = "crate::subscription_entries::Entity")
+        sea_orm(has_many = "super::subscription_entries::Entity")
     )]
     Entry,
     #[cfg_attr(
         feature = "sea-orm",
         sea_orm(
-            belongs_to = "crate::user::Entity",
+            belongs_to = "super::user::Entity",
             from = "Column::UserId",
-            to = "crate::user::Column::Id"
+            to = "super::user::Column::Id"
         )
     )]
     User,
 }
 
-// impl Related<crate::subscription::Entity> for Entity {
-//     fn to() -> RelationDef {
-//         Relation::Entry.def()
-//     }
-// }
+
 #[cfg(feature = "sea-orm")]
-impl Related<crate::user::Entity> for Entity {
+impl Related<super::user::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::User.def()
     }

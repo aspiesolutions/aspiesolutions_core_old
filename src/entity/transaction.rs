@@ -1,8 +1,6 @@
 #[cfg(feature = "sea-orm")]
 use sea_orm::prelude::*;
-use serde::{Deserialize, Serialize};
-
-use crate::currency::Currency;
+use super::currency::Currency;
 // a transaction represents what happens in a users account
 // transactions represent the flow of money to/from in/out of the system
 
@@ -19,7 +17,9 @@ use crate::currency::Currency;
 
 // db_type = "Numberic"
 pub type Id = i64;
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
+#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
+#[cfg_attr(feature="clone", derive(Clone))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(feature = "sea-orm", sea_orm(table_name = "transactions"))]
 pub struct Model {
@@ -29,16 +29,16 @@ pub struct Model {
     text: String,
     amount: rust_decimal::Decimal,
     currency: Currency,
-    bank_account: crate::bank_account::Id,
+    bank_account: super::bank_account::Id,
     // created and finalized account for the period of time that banks "hold" the transcation
-    user_id: crate::user::Id,
+    user_id: super::user::Id,
     created: chrono::DateTime<chrono::Utc>,
     finalized: Option<chrono::DateTime<chrono::Utc>>,
     // TODO: what method was used to pay for the transaction
     vendor: Vendor,
     is_buisness: bool,
-    bill: Option<crate::bill::Id>,
-    subscription_entry: Option<crate::subscription::Id>,
+    bill: Option<super::bill::Id>,
+    subscription_entry: Option<super::subscription::Id>,
     reciept: Option<String>,
 }
 #[derive(Clone, Debug)]
@@ -47,27 +47,27 @@ pub enum Relation {
     #[cfg_attr(
         feature = "sea-orm",
         sea_orm(
-            belongs_to = "crate::bank_account::Entity",
+            belongs_to = "super::bank_account::Entity",
             from = "Column::BankAccount",
-            to = "crate::bank_account::Column::Id"
+            to = "super::bank_account::Column::Id"
         )
     )]
     BankAccount,
     #[cfg_attr(
         feature = "sea-orm",
         sea_orm(
-            belongs_to = "crate::bill::Entity",
+            belongs_to = "super::bill::Entity",
             from = "Column::Bill",
-            to = "crate::bill::Column::Id"
+            to = "super::bill::Column::Id"
         )
     )]
     Bills,
     #[cfg_attr(
         feature = "sea-orm",
         sea_orm(
-            belongs_to = "crate::user::Entity",
+            belongs_to = "super::user::Entity",
             from = "Column::UserId",
-            to = "crate::user::Column::Id"
+            to = "super::user::Column::Id"
         )
     )]
     User,
@@ -86,10 +86,10 @@ impl Model {
     pub fn currency(&self) -> Currency {
         self.currency.clone()
     }
-    pub fn bank_account(&self) -> crate::bank_account::Id {
+    pub fn bank_account(&self) -> super::bank_account::Id {
         self.bank_account
     }
-    pub fn user_id(&self) -> crate::user::Id {
+    pub fn user_id(&self) -> super::user::Id {
         self.user_id
     }
     pub fn created<'a>(&'a self) -> &'a chrono::DateTime<chrono::Utc> {
@@ -104,25 +104,27 @@ impl Model {
     pub fn is_buisness(&self) -> bool {
         self.is_buisness
     }
-    pub fn bill(&self) -> Option<crate::bill::Id> {
+    pub fn bill(&self) -> Option<super::bill::Id> {
         self.bill.clone()
     }
 }
 #[cfg(feature = "sea-orm")]
-impl Related<crate::subscription_entries::Entity> for Entity {
+impl Related<super::subscription_entries::Entity> for Entity {
     fn to() -> RelationDef {
-        crate::subscription_entry_transactions::Relation::Transaction.def()
+        super::subscription_entry_transactions::Relation::Transaction.def()
     }
     fn via() -> Option<RelationDef> {
         Some(
-            crate::subscription_entry_transactions::Relation::Entry
+            super::subscription_entry_transactions::Relation::Entry
                 .def()
                 .rev(),
         )
     }
 }
 #[repr(i16)]
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
+
 #[cfg_attr(feature = "sea-orm", derive(DeriveActiveEnum, EnumIter))]
 #[cfg_attr(
     feature = "sea-orm",
@@ -153,13 +155,13 @@ impl Vendor {
 }
 
 #[cfg(feature = "sea-orm")]
-impl Related<crate::bank_account::Entity> for Entity {
+impl Related<super::bank_account::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::BankAccount.def()
     }
 }
 #[cfg(feature = "sea-orm")]
-impl Related<crate::user::Entity> for Entity {
+impl Related<super::user::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::User.def()
     }
