@@ -2,7 +2,7 @@
 name = "aspiesolutions_core"
 description="core types used by many crates"
 license="MIT"
-version = "0.2.18-pr.11"
+version = "0.2.19-pr.12"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -29,3 +29,4 @@ uuid = { version = "1.2.2", features = ["v4"] }
 sea-orm = { version = "0.10.6", optional = true }
 chrono = "0.4.23"
 rust_decimal = "1.27.0"
+rust-argon2 = { version = "1.0.0", optional = true }
