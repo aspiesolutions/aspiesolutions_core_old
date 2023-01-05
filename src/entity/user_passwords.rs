@@ -3,16 +3,15 @@ use sea_orm::prelude::*;
 pub type Id = i32;
 pub type UserId = super::user::Id;
 #[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(feature = "sea-orm", sea_orm(table_name = "user_passwords"))]
 pub struct Model {
-    #[cfg_attr(feature = "sea-orm", sea_orm(primary_key,auto_increment=true))]
-    id:Id,
-    user_id:UserId,
+    #[cfg_attr(feature = "sea-orm", sea_orm(primary_key, auto_increment = true))]
+    id: Id,
+    user_id: UserId,
     date_time_created: chrono::DateTime<chrono::Utc>,
-    hash:String
-
+    hash: String,
 }
 
 impl Model {
@@ -33,16 +32,23 @@ impl Model {
 #[derive(Debug)]
 #[cfg_attr(feature = "sea-orm", derive(DeriveRelation, EnumIter))]
 pub enum Relation {
-    #[cfg_attr(feature = "sea-orm", sea_orm(belongs_to = "super::user::Entity",from="Column::UserId",to="super::user::Column::Id"))]
+    #[cfg_attr(
+        feature = "sea-orm",
+        sea_orm(
+            belongs_to = "super::user::Entity",
+            from = "Column::UserId",
+            to = "super::user::Column::Id"
+        )
+    )]
     User,
 }
 
-#[cfg(feature="sea-orm")]
+#[cfg(feature = "sea-orm")]
 impl Related<super::user::Entity> for self::Entity {
     fn to() -> RelationDef {
         self::Relation::User.def()
     }
 }
 
-#[cfg(feature="sea-orm")]
+#[cfg(feature = "sea-orm")]
 impl ActiveModelBehavior for ActiveModel {}

@@ -16,8 +16,8 @@ use sea_orm::prelude::*;
 pub type Id = i32;
 
 #[derive(Debug, PartialEq)]
-#[cfg_attr(feature="clone", derive(Clone))]
-#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
+#[cfg_attr(feature = "clone", derive(Clone))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(feature = "sea-orm", sea_orm(table_name = "subscriptions"))]
 pub struct Model {
@@ -45,7 +45,6 @@ pub enum Relation {
     )]
     User,
 }
-
 
 #[cfg(feature = "sea-orm")]
 impl Related<super::user::Entity> for Entity {

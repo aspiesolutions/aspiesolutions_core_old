@@ -7,8 +7,8 @@ use sea_orm::prelude::*;
 pub type Id = i64;
 
 #[derive(Debug, PartialEq)]
-#[cfg_attr(feature="clone", derive(Clone))]
-#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
+#[cfg_attr(feature = "clone", derive(Clone))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(feature = "sea-orm", sea_orm(table_name = "bills"))]
 pub struct Model {

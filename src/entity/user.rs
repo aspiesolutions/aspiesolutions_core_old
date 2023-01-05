@@ -4,7 +4,7 @@ pub type Id = i64;
 pub type Role = u8;
 
 #[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(feature = "sea-orm", sea_orm(table_name = "users"))]
 pub struct Model {
@@ -13,7 +13,7 @@ pub struct Model {
     name: String,
 }
 #[derive(PartialEq, Clone)]
-#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(FromQueryResult))]
 pub struct IdOnly {
     inner: Id,
@@ -50,8 +50,11 @@ pub enum Relation {
     Subscriptions,
     #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "super::transaction::Entity"))]
     Transactions,
-    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "super::user_passwords::Entity"))]
-    Passwords
+    #[cfg_attr(
+        feature = "sea-orm",
+        sea_orm(has_many = "super::user_passwords::Entity")
+    )]
+    Passwords,
 }
 #[cfg(feature = "sea-orm")]
 impl Related<super::bank_account::Entity> for Entity {
@@ -93,8 +96,9 @@ pub async fn delete_with_related(id: Id, txn: &DatabaseTransaction) -> Result<Id
         .exec(txn)
         .await?;
     super::user_passwords::Entity::delete_many()
-    .filter(super::user_passwords::Column::UserId.eq(id))
-    .exec(txn).await?;
+        .filter(super::user_passwords::Column::UserId.eq(id))
+        .exec(txn)
+        .await?;
 
     Entity::delete_by_id(id).exec(txn).await?;
     Ok(id)

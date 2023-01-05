@@ -1,11 +1,9 @@
 use super::StringSearchFilter;
 // use this type alias to allow for defaults while also allowing to specify a different type in case the type changes
 // where do we send the form
-pub const CREATE_USER_METHOD:&str = "POST";
+pub const CREATE_USER_METHOD: &str = "POST";
 pub const CREATE_SINGLE_USER_ENDPOINT: &str = "/user/create";
 pub const CREATE_MANY_USER_ENDPOINT: &str = "/users/create";
-
-
 
 type UserId = crate::entity::user::Id;
 #[cfg_attr(feature = "rocket", derive(rocket::FromForm))]
@@ -13,16 +11,13 @@ type UserId = crate::entity::user::Id;
 #[derive(PartialEq, Eq, Clone)]
 pub struct CreateUserForm {
     id: uuid::Uuid,
-    data:CreateUserFormData,
+    data: CreateUserFormData,
 }
 impl CreateUserForm {
     pub fn new(data: CreateUserFormData) -> Self {
         // Used to Uniquely identify the form
         let id = uuid::Uuid::new_v4();
-        Self {
-            id,
-            data
-        }
+        Self { id, data }
     }
     pub fn id(&self) -> &uuid::Uuid {
         &self.id
@@ -31,7 +26,7 @@ impl CreateUserForm {
         &self.data
     }
     // shortcut accessor method instead of mutating the underlying data
-    pub fn set_name(&mut self,s:&str) {
+    pub fn set_name(&mut self, s: &str) {
         self.data.set_name(s);
     }
     // shortcut getter instead of having to go through data()
@@ -43,24 +38,24 @@ impl CreateUserForm {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(PartialEq, Eq, Clone)]
 pub struct CreateUserFormData {
-    name:String,
-    password:String
+    name: String,
+    password: String,
 }
 
 impl CreateUserFormData {
     pub fn new() -> Self {
         Self {
             name: String::new(),
-            password: String::new()
+            password: String::new(),
         }
     }
     pub fn set_passsword(&mut self, s: &str) {
         self.password = s.to_string()
     }
-    pub fn set_name(&mut self, s: &str){
+    pub fn set_name(&mut self, s: &str) {
         self.name = s.to_string();
     }
-    pub fn password(&self)-> &str {
+    pub fn password(&self) -> &str {
         &self.password
     }
     pub fn name(&self) -> &str {

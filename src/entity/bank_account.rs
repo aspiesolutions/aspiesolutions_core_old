@@ -3,8 +3,8 @@ use sea_orm::prelude::*;
 pub type Id = i32;
 
 #[derive(PartialEq, Debug)]
-#[cfg_attr(feature="clone", derive(Clone))]
-#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
+#[cfg_attr(feature = "clone", derive(Clone))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(feature = "sea-orm", sea_orm(table_name = "bank_accounts"))]
 pub struct Model {
@@ -18,25 +18,24 @@ pub struct Model {
     account_type: AccountType,
 }
 #[repr(i8)]
-#[derive(Debug,  PartialEq)]
-#[cfg_attr(feature="clone", derive(Clone))]
-#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
+#[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "clone", derive(Clone))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(EnumIter, DeriveActiveEnum))]
 #[cfg_attr(feature = "sea-orm", sea_orm(rs_type = "i8", db_type = "TinyInteger"))]
 pub enum AccountType {
     Checking = -128,
     Savings = -127,
 }
-#[cfg(not(feature="sea-orm"))]
+#[cfg(not(feature = "sea-orm"))]
 impl std::fmt::Display for AccountType {
-    fn fmt(&self,f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            &Self::Checking => write!(f,"Checking"),
-            &Self::Savings => write!(f,"Savings")
+            &Self::Checking => write!(f, "Checking"),
+            &Self::Savings => write!(f, "Savings"),
         }
-    } 
+    }
 }
-
 
 // const ACCOUNT_TYPE_CHECKING: AccountType = AccountType::Checking;
 // const ACCOUNT_TYPE_SAVINGS: AccountType = AccountType::Savings;

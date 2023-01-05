@@ -18,8 +18,8 @@ pub type Id = i32;
 
 use super::currency::Currency;
 #[derive(Debug, PartialEq)]
-#[cfg_attr(feature="clone", derive(Clone))]
-#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
+#[cfg_attr(feature = "clone", derive(Clone))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(feature = "sea-orm", sea_orm(table_name = "subscription_entry"))]
 pub struct Model {
@@ -37,8 +37,8 @@ pub struct Model {
 
 #[repr(i8)]
 #[derive(Debug, PartialEq)]
-#[cfg_attr(feature="clone", derive(Clone))]
-#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
+#[cfg_attr(feature = "clone", derive(Clone))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveActiveEnum, EnumIter))]
 #[cfg_attr(feature = "sea-orm", sea_orm(rs_type = "i8", db_type = "TinyInteger"))]
 pub enum Frequency {
@@ -49,7 +49,7 @@ pub enum Frequency {
     Yearly = -124,
 }
 #[derive(Copy, Debug)]
-#[cfg_attr(feature="clone", derive(Clone))]
+#[cfg_attr(feature = "clone", derive(Clone))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveRelation, EnumIter))]
 pub enum Relation {
     #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "super::transaction::Entity"))]

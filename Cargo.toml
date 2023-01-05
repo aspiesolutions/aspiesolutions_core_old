@@ -21,7 +21,7 @@ debug=[]
 
 [dependencies]
 reqwest = { version = "0.11.13", default-features=false, optional = true }
-rocket = { version = "0.5.0-rc.2", default-features=false, features=["msgpack"], optional = true }
+rocket = { version = "0.5.0-rc.2", default-features=false, features=["msgpack","secrets"], optional = true }
 serde = { version = "1.0.150", optional = true, features = ["derive"] }
 rmp-serde = {version="1.1.1",optional=true}
 thiserror = "1.0.38"

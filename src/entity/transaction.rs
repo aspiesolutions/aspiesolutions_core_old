@@ -1,6 +1,6 @@
+use super::currency::Currency;
 #[cfg(feature = "sea-orm")]
 use sea_orm::prelude::*;
-use super::currency::Currency;
 // a transaction represents what happens in a users account
 // transactions represent the flow of money to/from in/out of the system
 
@@ -18,8 +18,8 @@ use super::currency::Currency;
 // db_type = "Numberic"
 pub type Id = i64;
 #[derive(Debug, PartialEq)]
-#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
-#[cfg_attr(feature="clone", derive(Clone))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "clone", derive(Clone))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(feature = "sea-orm", sea_orm(table_name = "transactions"))]
 pub struct Model {
@@ -123,8 +123,7 @@ impl Related<super::subscription_entries::Entity> for Entity {
 }
 #[repr(i16)]
 #[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
-
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveActiveEnum, EnumIter))]
 #[cfg_attr(
     feature = "sea-orm",
@@ -149,7 +148,7 @@ impl Vendor {
             &Self::Roadie => "Roadie",
             &Self::Ford => "Ford",
             &Self::FordMotorCredit => "Ford Motor Credit",
-            &Self::Other=> "Other"
+            &Self::Other => "Other",
         }
     }
 }

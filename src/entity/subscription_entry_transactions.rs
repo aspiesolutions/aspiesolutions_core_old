@@ -4,8 +4,8 @@ use sea_orm::prelude::*;
 // mapping table linking subscription_entries to many transactions
 pub type Id = i64;
 #[derive(Debug, PartialEq)]
-#[cfg_attr(feature="clone", derive(Clone))]
-#[cfg_attr(feature="serde", derive(serde::Serialize,serde::Deserialize))]
+#[cfg_attr(feature = "clone", derive(Clone))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveEntityModel))]
 #[cfg_attr(
     feature = "sea-orm",

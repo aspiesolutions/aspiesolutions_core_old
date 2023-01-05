@@ -1,8 +1,8 @@
 // use serde::{Deserialize, Serialize};
 pub mod user;
 pub use user::{
-    CreateOrUpdateUserForm, CreateOrUpdateUserFormData, CreateUserForm, CreateUserFormData, DeleteUserForm,
-    UpdateUserForm, UserSearchForm, UserSearchFormData,
+    CreateOrUpdateUserForm, CreateOrUpdateUserFormData, CreateUserForm, CreateUserFormData,
+    DeleteUserForm, UpdateUserForm, UserSearchForm, UserSearchFormData,
 };
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -14,9 +14,9 @@ pub struct StringSearchFilter {
 }
 impl StringSearchFilter {
     pub fn contains(&self) -> Option<&str> {
-        self.contains.as_ref().map(|s|s.as_str())
+        self.contains.as_ref().map(|s| s.as_str())
     }
     pub fn equals(&self) -> Option<&str> {
-        self.equals.as_ref().map(|s|s.as_str())
+        self.equals.as_ref().map(|s| s.as_str())
     }
 }

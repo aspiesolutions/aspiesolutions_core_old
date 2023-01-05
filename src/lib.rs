@@ -1,13 +1,16 @@
 #![deny(warnings)]
 #![allow(dead_code)]
+#[cfg(feature = "sea-orm")]
+pub mod db;
+pub mod entity;
 pub mod error;
 pub mod forms;
+#[cfg(feature = "rocket")]
 pub mod server;
-pub mod entity;
-#[cfg(feature="sea-orm")]
-pub mod db;
 
-pub use forms::{CreateOrUpdateUserForm, CreateUserForm, CreateUserFormData, DeleteUserForm, UpdateUserForm};
+pub use forms::{
+    CreateOrUpdateUserForm, CreateUserForm, CreateUserFormData, DeleteUserForm, UpdateUserForm,
+};
 
 pub use crate::error::Error;
 // pub mod user;
@@ -93,12 +96,10 @@ pub type CreateManyUserResult = ManyResult<CreateUserForm, crate::entity::user::
 pub type CreateUserData = SingleData<CreateUserForm, crate::entity::user::Model>;
 pub type CreateUserResult = SingleResult<CreateUserForm, crate::entity::user::Model>;
 // CREATE OR UPDATE
-pub type CreateOrUpdateManyUserData =
-    ManyData<CreateOrUpdateUserForm, crate::entity::user::Model>;
+pub type CreateOrUpdateManyUserData = ManyData<CreateOrUpdateUserForm, crate::entity::user::Model>;
 pub type CreateOrUpdateManyUserResult =
     ManyResult<CreateOrUpdateUserForm, crate::entity::user::Model>;
-pub type CreateOrUpdateUserData =
-    ManyData<CreateOrUpdateUserForm, crate::entity::user::Model>;
+pub type CreateOrUpdateUserData = ManyData<CreateOrUpdateUserForm, crate::entity::user::Model>;
 pub type CreateOrUpdateUserResult =
     SingleResult<CreateOrUpdateUserForm, crate::entity::user::Model>;
 // UPDATE
