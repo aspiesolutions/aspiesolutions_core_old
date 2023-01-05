@@ -43,17 +43,25 @@ impl CreateUserForm {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(PartialEq, Eq, Clone)]
 pub struct CreateUserFormData {
-    name:String
+    name:String,
+    password:String
 }
 
 impl CreateUserFormData {
     pub fn new() -> Self {
         Self {
             name: String::new(),
+            password: String::new()
         }
+    }
+    pub fn set_passsword(&mut self, s: &str) {
+        self.password = s.to_string()
     }
     pub fn set_name(&mut self, s: &str){
         self.name = s.to_string();
+    }
+    pub fn password(&self)-> &str {
+        &self.password
     }
     pub fn name(&self) -> &str {
         &self.name
