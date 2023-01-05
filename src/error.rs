@@ -1,5 +1,5 @@
 #[cfg(feature = "sea-orm")]
-pub use aspiesolutions_entity::sea_orm;
+pub use crate::entity::sea_orm;
 
 #[derive(Debug, PartialEq, Eq, thiserror::Error)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

@@ -3,6 +3,7 @@
 pub mod error;
 pub mod forms;
 pub mod server;
+pub mod entity;
 
 pub use forms::{CreateOrUpdateUserForm, CreateUserForm, CreateUserFormData, DeleteUserForm, UpdateUserForm};
 
@@ -82,29 +83,29 @@ pub type SingleData<Input, Output> = Result<Output, (Input, Error)>;
 pub type SingleResult<Input, Output> = Result<SingleData<Input, Output>, Error>;
 
 // SEARCH
-pub type SearchUserData = Paged<aspiesolutions_entity::user::Model>;
+pub type SearchUserData = Paged<crate::entity::user::Model>;
 pub type SearchUserResult = Result<SearchUserData, Error>;
 //CREATE
-pub type CreateManyUserData = ManyData<CreateUserForm, aspiesolutions_entity::user::Model>;
-pub type CreateManyUserResult = ManyResult<CreateUserForm, aspiesolutions_entity::user::Model>;
-pub type CreateUserData = SingleData<CreateUserForm, aspiesolutions_entity::user::Model>;
-pub type CreateUserResult = SingleResult<CreateUserForm, aspiesolutions_entity::user::Model>;
+pub type CreateManyUserData = ManyData<CreateUserForm, crate::entity::user::Model>;
+pub type CreateManyUserResult = ManyResult<CreateUserForm, crate::entity::user::Model>;
+pub type CreateUserData = SingleData<CreateUserForm, crate::entity::user::Model>;
+pub type CreateUserResult = SingleResult<CreateUserForm, crate::entity::user::Model>;
 // CREATE OR UPDATE
 pub type CreateOrUpdateManyUserData =
-    ManyData<CreateOrUpdateUserForm, aspiesolutions_entity::user::Model>;
+    ManyData<CreateOrUpdateUserForm, crate::entity::user::Model>;
 pub type CreateOrUpdateManyUserResult =
-    ManyResult<CreateOrUpdateUserForm, aspiesolutions_entity::user::Model>;
+    ManyResult<CreateOrUpdateUserForm, crate::entity::user::Model>;
 pub type CreateOrUpdateUserData =
-    ManyData<CreateOrUpdateUserForm, aspiesolutions_entity::user::Model>;
+    ManyData<CreateOrUpdateUserForm, crate::entity::user::Model>;
 pub type CreateOrUpdateUserResult =
-    SingleResult<CreateOrUpdateUserForm, aspiesolutions_entity::user::Model>;
+    SingleResult<CreateOrUpdateUserForm, crate::entity::user::Model>;
 // UPDATE
-pub type UpdateManyUserData = ManyData<UpdateUserForm, aspiesolutions_entity::user::Model>;
-pub type UpdateManyUserResult = ManyResult<UpdateUserForm, aspiesolutions_entity::user::Model>;
-pub type UpdateUserData = ManyData<UpdateUserForm, aspiesolutions_entity::user::Model>;
-pub type UpdateUserResult = SingleResult<UpdateUserForm, aspiesolutions_entity::user::Model>;
+pub type UpdateManyUserData = ManyData<UpdateUserForm, crate::entity::user::Model>;
+pub type UpdateManyUserResult = ManyResult<UpdateUserForm, crate::entity::user::Model>;
+pub type UpdateUserData = ManyData<UpdateUserForm, crate::entity::user::Model>;
+pub type UpdateUserResult = SingleResult<UpdateUserForm, crate::entity::user::Model>;
 // DELETE
-pub type DeleteManyUserData = ManyData<DeleteUserForm, aspiesolutions_entity::user::Model>;
-pub type DeleteManyUserResult = ManyResult<DeleteUserForm, aspiesolutions_entity::user::Model>;
-pub type DeleteUserData = ManyData<DeleteUserForm, aspiesolutions_entity::user::Model>;
-pub type DeleteUserResult = SingleResult<DeleteUserForm, aspiesolutions_entity::user::Model>;
+pub type DeleteManyUserData = ManyData<DeleteUserForm, crate::entity::user::Model>;
+pub type DeleteManyUserResult = ManyResult<DeleteUserForm, crate::entity::user::Model>;
+pub type DeleteUserData = ManyData<DeleteUserForm, crate::entity::user::Model>;
+pub type DeleteUserResult = SingleResult<DeleteUserForm, crate::entity::user::Model>;

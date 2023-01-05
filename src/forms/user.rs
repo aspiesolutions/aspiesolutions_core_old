@@ -7,7 +7,7 @@ pub const CREATE_MANY_USER_ENDPOINT: &str = "/users/create";
 
 
 
-type UserId = aspiesolutions_entity::user::Id;
+type UserId = crate::entity::user::Id;
 #[cfg_attr(feature = "rocket", derive(rocket::FromForm))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(PartialEq, Eq, Clone)]
