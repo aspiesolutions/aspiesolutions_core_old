@@ -4,6 +4,8 @@ pub mod error;
 pub mod forms;
 pub mod server;
 pub mod entity;
+#[cfg(feature="sea-orm")]
+pub mod db;
 
 pub use forms::{CreateOrUpdateUserForm, CreateUserForm, CreateUserFormData, DeleteUserForm, UpdateUserForm};
 
