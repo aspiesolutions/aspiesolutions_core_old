@@ -98,8 +98,8 @@ impl std::convert::From<rmp_serde::decode::Error> for Error {
 }
 
 #[cfg(feature="rust-argon2")]
-impl std::convert::from<rust_argon2::Error> for Error {
-    fn from(e:rust_argon2::Error) -> Self {
+impl std::convert::From<argon2::Error> for Error {
+    fn from(e:argon2::Error) -> Self {
         Self::PasswordHashError(e.to_string())
     }
 }
