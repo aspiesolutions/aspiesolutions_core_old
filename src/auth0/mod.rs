@@ -2,7 +2,7 @@
 pub struct JwtClaims {}
 
 #[cfg_attr(feature = "serde", derive(serde::Deserialize))]
-pub struct Config {
+pub struct Auth0Config {
     base_url: String,
     auth: AuthenticationMethod,
 }

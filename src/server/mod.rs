@@ -6,7 +6,7 @@ use rocket::State;
 use std::str::FromStr;
 
 #[cfg_attr(feature = "serde", derive(serde::Deserialize))]
-pub struct Config {
+pub struct ServerConfig {
     domain: String,
 }
 
