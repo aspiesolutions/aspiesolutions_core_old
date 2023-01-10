@@ -12,7 +12,17 @@ pub struct ServerConfig {
     database_url:String,
     auth0: Option<crate::auth0::Auth0Config>
 }
-
+impl ServerConfig {
+    pub fn database_url(&self) -> &str {
+        &self.database_url
+    }
+    pub fn domain(&self) -> &str {
+        &self.domain
+    }
+    pub fn auth0(&self) -> Option<&crate::auth0::Auth0Config> {
+        self.auth0.as_ref()
+    }
+}
 // create a request guard that represents a user whos browser sends us an encrypted "session_id" token
 pub struct SessionIdCookie(uuid::Uuid);
 
