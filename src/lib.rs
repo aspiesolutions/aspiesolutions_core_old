@@ -1,11 +1,11 @@
 #![deny(warnings)]
 #![allow(dead_code)]
+pub mod auth0;
 #[cfg(feature = "sea-orm")]
 pub mod db;
 pub mod entity;
 pub mod error;
 pub mod forms;
-pub mod auth0;
 #[cfg(feature = "rocket")]
 pub mod server;
 

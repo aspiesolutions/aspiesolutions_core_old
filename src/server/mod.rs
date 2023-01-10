@@ -66,7 +66,10 @@ impl<'r> FromRequest<'r> for Session {
             .await
             .succeeded();
         if maybe_database_connection.is_none() {
-            return Outcome::Failure((Status::InternalServerError, ()));
+            return Outcome::Failure((
+                Status::InternalServerError,
+                "failed to get database connection".to_string(),
+            ));
         }
         let session_id = maybe_session_id_cookie.unwrap().get_id().to_owned();
         let database_connection = maybe_database_connection.unwrap();
@@ -75,17 +78,14 @@ impl<'r> FromRequest<'r> for Session {
             .one(database_connection.inner())
             .await;
         if session_search_result.is_err() {
-            return Outcome::Failure((Status::InternalServerError, ()));
+            return Outcome::Failure((
+                Status::InternalServerError,
+                session_search_result.unwrap_err().to_string(),
+            ));
         }
         match session_search_result.unwrap() {
             Some(session) => Outcome::Success(Session(session)),
             None => Outcome::Forward(()),
         }
     }
-}
-#[cfg_attr(feature="serde",derive(serde::Serialize,serde::Deserialize))]
-pub enum AuthenticationKind {
-    Bearer(String),
-    Basic,
-    Empty
 }
