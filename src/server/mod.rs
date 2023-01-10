@@ -49,7 +49,7 @@ pub struct Session(pub crate::entity::session::Model);
 // look up a database session
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for Session {
-    type Error = ();
+    type Error = String;
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         use crate::entity;
@@ -82,4 +82,10 @@ impl<'r> FromRequest<'r> for Session {
             None => Outcome::Forward(()),
         }
     }
+}
+#[cfg_attr(feature="serde",derive(serde::Serialize,serde::Deserialize))]
+pub enum AuthenticationKind {
+    Bearer(String),
+    Basic,
+    Empty
 }
