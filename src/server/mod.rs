@@ -5,6 +5,11 @@ use rocket::State;
 // use rocket::http::Status;
 use std::str::FromStr;
 
+#[cfg_attr(feature = "serde", derive(serde::Deserialize))]
+pub struct Config {
+    domain: String,
+}
+
 // create a request guard that represents a user whos browser sends us an encrypted "session_id" token
 pub struct SessionIdCookie(uuid::Uuid);
 
