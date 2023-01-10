@@ -11,7 +11,7 @@ pub enum AuthenticationMethod {
     ClientIdAndSecret(ClientIdAndSecret),
     AccessToken { access_token: String },
 }
-
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ClientIdAndSecret {
     client_id: String,
     client_secret: String,
