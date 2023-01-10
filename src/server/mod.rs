@@ -6,8 +6,11 @@ use rocket::State;
 use std::str::FromStr;
 
 #[cfg_attr(feature = "serde", derive(serde::Deserialize))]
+#[derive(Debug)]
 pub struct ServerConfig {
     domain: String,
+    database_url:String,
+    auth0: Option<crate::auth0::Auth0Config>
 }
 
 // create a request guard that represents a user whos browser sends us an encrypted "session_id" token
