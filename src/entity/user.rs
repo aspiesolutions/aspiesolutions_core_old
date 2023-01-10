@@ -55,8 +55,8 @@ pub enum Relation {
         sea_orm(has_many = "super::user_passwords::Entity")
     )]
     Passwords,
-        #[cfg_attr(feature = "sea-orm", sea_orm(has_many="super::session::Entity"))]
-    Sessions
+    #[cfg_attr(feature = "sea-orm", sea_orm(has_many = "super::session::Entity"))]
+    Sessions,
 }
 #[cfg(feature = "sea-orm")]
 impl Related<super::bank_account::Entity> for Entity {

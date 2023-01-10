@@ -5,12 +5,12 @@ pub mod subscription;
 #[cfg(feature = "sea-orm")]
 pub use sea_orm;
 pub mod bank_account;
+pub mod session;
 pub mod subscription_entries;
 pub mod subscription_entry_transactions;
 pub mod transaction;
 pub mod user;
 pub mod user_passwords;
-pub mod session;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
