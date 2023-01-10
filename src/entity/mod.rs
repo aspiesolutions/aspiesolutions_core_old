@@ -10,6 +10,7 @@ pub mod subscription_entry_transactions;
 pub mod transaction;
 pub mod user;
 pub mod user_passwords;
+pub mod session;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {

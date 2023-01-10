@@ -48,7 +48,7 @@ pub enum Frequency {
     Weekly = -125,
     Yearly = -124,
 }
-#[derive(Copy, Debug)]
+#[derive(Debug)]
 #[cfg_attr(feature = "clone", derive(Clone))]
 #[cfg_attr(feature = "sea-orm", derive(DeriveRelation, EnumIter))]
 pub enum Relation {
