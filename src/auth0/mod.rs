@@ -2,16 +2,19 @@
 pub struct JwtClaims {}
 
 #[cfg_attr(feature = "serde", derive(serde::Deserialize))]
+#[derive(Debug)]
 pub struct Auth0Config {
     base_url: String,
     auth: AuthenticationMethod,
 }
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug)]
 pub enum AuthenticationMethod {
     ClientIdAndSecret(ClientIdAndSecret),
     AccessToken { access_token: String },
 }
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug)]
 pub struct ClientIdAndSecret {
     client_id: String,
     client_secret: String,
