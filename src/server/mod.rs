@@ -10,6 +10,7 @@ use std::str::FromStr;
 #[derive(Debug)]
 pub struct ServerConfig {
     domain: String,
+    use_https_in_uris:bool,
     database_url: String,
     auth0: crate::auth0::Auth0Config,
 }
@@ -22,6 +23,9 @@ impl ServerConfig {
     }
     pub fn auth0(&self) -> &crate::auth0::Auth0Config {
         &self.auth0
+    }
+    pub fn use_https_in_uris(&self) -> bool {
+        &self.use_https_in_uris
     }
 }
 // create a request guard that represents a user whos browser sends us an encrypted "session_id" token
