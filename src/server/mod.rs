@@ -25,7 +25,7 @@ impl ServerConfig {
         &self.auth0
     }
     pub fn use_https_in_uris(&self) -> bool {
-        &self.use_https_in_uris
+        self.use_https_in_uris
     }
 }
 // create a request guard that represents a user whos browser sends us an encrypted "session_id" token
