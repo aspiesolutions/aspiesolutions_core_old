@@ -31,7 +31,7 @@ impl Auth0Config {
 }
 pub fn generate_state_key() -> String {
     use rand::distributions::{Alphanumeric, DistString};
-    Alphanumeric.sample_string(&mut rand::thread_rng(), 256)
+    Alphanumeric.sample_string(&mut rand::thread_rng(), 128)
 }
 #[cfg(feature = "tokio")]
 pub async fn generate_random_state_key_async() -> Result<String, Error> {
