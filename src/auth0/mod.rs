@@ -44,17 +44,27 @@ pub async fn generate_random_state_key_async() -> Result<String, crate::Error> {
 pub struct AuthState {
     /// where to send the user after the auth flow completes
     return_to: Option<String>,
+    grant_type: Option<String>,
 }
 
 impl AuthState {
     pub fn new() -> Self {
-        Self { return_to: None }
+        Self {
+            return_to: None,
+            grant_type: None,
+        }
     }
-    pub fn set_return_to(&mut self, return_to: Option<String>) {
-        self.return_to = return_to
+    pub fn set_return_to(&mut self, return_to: Option<&str>) {
+        self.return_to = return_to.map(|s| s.to_string())
     }
     pub fn return_to(&self) -> Option<&str> {
         self.return_to.as_ref().map(|s| s.as_str())
+    }
+    pub fn set_grant_type(&mut self, grant_type: Option<&str>) {
+        self.grant_type = grant_type.map(|s| s.to_string())
+    }
+    pub fn grant_type(&self) -> Option<&str> {
+        self.grant_type.as_ref().map(|s| s.as_str())
     }
 }
 
