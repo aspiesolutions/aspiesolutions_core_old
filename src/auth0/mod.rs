@@ -108,15 +108,13 @@ impl AuthStateHashMap {
         let mut write_guard = self.0.write().await;
         write_guard.insert(key.to_string(), tokio::sync::Mutex::new(state));
     }
-    pub async fn remove(&self,key:&str) -> Option<AuthState> {
+    pub async fn remove(&self, key: &str) -> Option<AuthState> {
         let mut write_guard = self.0.write().await;
         if let Some(mutex) = write_guard.remove(key) {
             Some((*mutex.lock().await).clone())
-        }
-        else {
+        } else {
             None
         }
-
     }
 }
 #[cfg(not(feature = "tokio"))]
@@ -160,6 +158,17 @@ pub struct AuthorizationCodeFlowTokenExchangeResponse {
     access_token: String,
     token_type: String,
     expires_in: usize,
+}
+impl AuthorizationCodeFlowTokenExchangeResponse {
+    pub fn access_token(&self) -> &str {
+        &self.access_token
+    }
+    pub fn token_type(&self) -> &str {
+        &self.token_type
+    }
+    pub fn expires_in(&self) -> usize {
+        self.expires_in
+    }
 }
 pub struct Client {
     authorization_tenant_domain: String,
@@ -223,12 +232,12 @@ impl Client {
                 .await
                 .map_err(|e| e.into()),
             reqwest::StatusCode::BAD_REQUEST => {
-                println!("{}",response.text().await?);
+                println!("{}", response.text().await?);
                 todo!("bad request")
             }
-            not_yet_implemented=> {
+            not_yet_implemented => {
                 println!("not yet implemented {not_yet_implemented}");
-                todo!("{}",not_yet_implemented)
+                todo!("{}", not_yet_implemented)
             }
         }
     }
