@@ -110,7 +110,7 @@ pub enum AuthenticationHeader {
 
 pub struct Jwt(String);
 
-#[cfg_attr(feature = "serde", derive(serde::Serialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize,serde::Deserialize))]
 pub struct AuthorizationCodeFlowTokenExchangeParameters {
     pub grant_type: String,
     pub client_id: String,
@@ -118,7 +118,10 @@ pub struct AuthorizationCodeFlowTokenExchangeParameters {
     pub code: String,
     pub redirect_uri: Option<String>,
 }
+#[cfg_attr(feature = "serde", derive(serde::Serialize,serde::Deserialize))]
+pub struct AuthorizationCodeFlowTokenExchangeResponse {
 
+}
 pub struct Client {
     authorization_tenant_domain: String,
     #[cfg(feature = "reqwest")]
@@ -146,7 +149,13 @@ impl Client {
                 self.authorization_tenant_domain
             ))
             .json(params)
-            .await?;
+            
+            .send().await?;
+
+        let _status = response.status();
+        let _headers = response.headers();
+        let body = response.text().await?;
+        println!("response text {body}");
         Ok(String::new())
     }
 }
