@@ -30,24 +30,34 @@ impl Auth0Config {
 }
 
 pub struct AuthState {
-    state:String
+    state: String,
 }
-#[cfg(feature="tokio")]
-pub struct AuthStateHashMap(tokio::sync::RwLock<std::collections::HashMap<String,tokio::sync::Mutex<AuthState>>>);
+#[cfg(feature = "tokio")]
+pub struct AuthStateHashMap(
+    tokio::sync::RwLock<std::collections::HashMap<String, tokio::sync::Mutex<AuthState>>>,
+);
 
-#[cfg(feature="tokio")]
+#[cfg(feature = "tokio")]
 impl AuthStateHashMap {
-    pub fn new() ->Self {
-        Self(tokio::sync::RwLock::new(std::collections::HashMap::<String,tokio::sync::Mutex<AuthState>>::new()))
+    pub fn new() -> Self {
+        Self(tokio::sync::RwLock::new(std::collections::HashMap::<
+            String,
+            tokio::sync::Mutex<AuthState>,
+        >::new()))
     }
 }
-#[cfg(not(feature="tokio"))]
-pub struct AuthStateHashMap(std::sync::RwLock<std::collections::HashMap<String,std::sync::Mutex<AuthState>>>);
+#[cfg(not(feature = "tokio"))]
+pub struct AuthStateHashMap(
+    std::sync::RwLock<std::collections::HashMap<String, std::sync::Mutex<AuthState>>>,
+);
 
-#[cfg(not(feature="tokio"))]
+#[cfg(not(feature = "tokio"))]
 impl AuthStateHashMap {
-    pub fn new() ->Self {
-        Self(std::sync::RwLock::new(std::collections::HashMap::<String,std::sync::Mutex<AuthState>>::new()))
+    pub fn new() -> Self {
+        Self(std::sync::RwLock::new(std::collections::HashMap::<
+            String,
+            std::sync::Mutex<AuthState>,
+        >::new()))
     }
 }
 // an enum that represents the valid values of the 'authentication header'
