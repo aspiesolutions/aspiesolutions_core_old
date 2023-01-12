@@ -29,6 +29,14 @@ impl Auth0Config {
     }
 }
 
+pub struct AuthState {
+    state:String
+}
+#[cfg(feature="tokio")]
+pub type AuthStateHashMap= tokio::sync::RwLock<std::collections::HashMap<String,tokio::sync::Mutex<AuthState>>>;
+#[cfg(not(feature="tokio"))]
+pub type AuthStateHashMap= std::sync::RwLock<std::collections::HashMap<String,std::sync::Mutex<AuthState>>>;
+
 // an enum that represents the valid values of the 'authentication header'
 
 pub enum AuthenticationHeader {
