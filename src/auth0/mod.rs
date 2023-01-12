@@ -225,6 +225,7 @@ impl Client {
                 todo!("bad request")
             }
             not_yet_implemented=> {
+                println!("not yet implemented {not_yet_implemented}");
                 todo!("{}",not_yet_implemented)
             }
         }
