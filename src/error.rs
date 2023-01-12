@@ -17,37 +17,24 @@ pub enum Error {
     TransactionError(String),
     #[error("{0}")]
     PasswordHashError(String),
-    #[error("{0}")]
-    ClientError(ClientError),
-    #[error("{0}")]
-    ApiError(ApiError),
-    #[error("{0}")]
-    TokioJoinError(String),
-}
+    // below errors are for client errors
+    #[cfg(feature = "reqwest")]
+    #[cfg_attr(feature = "reqwest", error("{0}"))]
+    ReqwestError(String),
 
-#[derive(Debug, PartialEq, Eq, thiserror::Error)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-// #[cfg_attr(feature="rocket",derive(rocket::response::Responder))]
-pub enum ApiError {
-    // CreateOrUpdateUserFailure()
-    #[error("Failed To Create User in the system")]
-    CreateUserFailure {
-        form_data: crate::forms::CreateOrUpdateUserFormData,
-    },
-}
-
-#[derive(Debug, PartialEq, Eq, thiserror::Error)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-
-pub enum ClientError {
-    #[error("{0}")]
-    GeneralError(String),
     #[error("unhandled response code {0}")]
     UnhandledResponseStatusCode(String),
     #[error("The operation failed because the server said that the request body was malformed")]
     ServerRespondedWithUnprocessableEntity,
     #[error("The operation failed because the server refused the request or did not find the requested resource.")]
     NotFoundOrRefused,
+    #[error("{0}")]
+    TokioJoinError(String),
+    //below errors are for apis
+    #[error("Failed To Create User in the system")]
+    CreateUserFailure {
+        form_data: crate::forms::CreateOrUpdateUserFormData,
+    },
 }
 
 #[cfg(feature = "sea-orm")]
@@ -63,29 +50,13 @@ impl std::convert::From<sea_orm::TransactionError<sea_orm::DbErr>> for Error {
     }
 }
 
-impl std::convert::From<ClientError> for Error {
-    fn from(e: ClientError) -> Self {
-        Self::ClientError(e)
-    }
-}
-impl std::convert::From<ApiError> for Error {
-    fn from(e: ApiError) -> Self {
-        Self::ApiError(e)
-    }
-}
-
-#[cfg(feature = "reqwest")]
-impl std::convert::From<reqwest::Error> for ClientError {
-    fn from(e: reqwest::Error) -> Self {
-        Self::GeneralError(e.to_string())
-    }
-}
 #[cfg(feature = "reqwest")]
 impl std::convert::From<reqwest::Error> for Error {
     fn from(e: reqwest::Error) -> Self {
-        Self::ClientError(e.into())
+        Self::ReqwestError(e.to_string())
     }
 }
+
 #[cfg(feature = "rmp-serde")]
 impl std::convert::From<rmp_serde::encode::Error> for Error {
     fn from(e: rmp_serde::encode::Error) -> Self {

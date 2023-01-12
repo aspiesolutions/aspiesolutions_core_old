@@ -110,7 +110,7 @@ pub enum AuthenticationHeader {
 
 pub struct Jwt(String);
 
-#[cfg(feature = "serde")]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct AuthorizationCodeFlowTokenExchangeParameters {
     pub grant_type: String,
     pub client_id: String,
