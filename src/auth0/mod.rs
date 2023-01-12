@@ -44,6 +44,8 @@ pub async fn generate_random_state_key_async() -> Result<String, crate::Error> {
 pub struct AuthState {
     /// where to send the user after the auth flow completes
     return_to: Option<String>,
+    // the callback url that was sent in the original request
+    redirect_uri: Option<String>,
     grant_type: Option<String>,
 }
 
@@ -52,6 +54,7 @@ impl AuthState {
         Self {
             return_to: None,
             grant_type: None,
+            redirect_uri: None,
         }
     }
     pub fn set_return_to(&mut self, return_to: Option<&str>) {
@@ -65,6 +68,12 @@ impl AuthState {
     }
     pub fn grant_type(&self) -> Option<&str> {
         self.grant_type.as_ref().map(|s| s.as_str())
+    }
+    pub fn set_redirect_uri(&mut self, redirect_uri: Option<&str>) {
+        self.redirect_uri = redirect_uri.map(|s| s.to_string())
+    }
+    pub fn redirect_uri(&self) -> Option<&str> {
+        self.redirect_uri.as_ref().map(|s| s.as_str())
     }
 }
 
