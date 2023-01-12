@@ -9,6 +9,8 @@ pub struct Auth0Config {
     authorization_tenant_domain: String,
     client_id: String,
     client_secret: Option<String>,
+    /// the default api identifier used when requesting access tokens
+    api_audience: String,
 }
 impl Auth0Config {
     pub fn authorization_tenant_domain(&self) -> &str {
@@ -19,6 +21,9 @@ impl Auth0Config {
     }
     pub fn client_secret(&self) -> Option<&str> {
         self.client_secret.as_ref().map(|s| s.as_str())
+    }
+    pub fn api_audience(&self) -> &str {
+        &self.api_audience
     }
     pub fn get_response_type(&self) -> &'static str {
         if self.client_secret.is_some() {
@@ -135,10 +140,15 @@ pub struct AuthorizationCodeFlowTokenExchangeParameters {
     pub client_id: String,
     pub client_secret: String,
     pub code: String,
+    // pub audience:String,
     pub redirect_uri: Option<String>,
 }
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AuthorizationCodeFlowTokenExchangeResponse {}
+pub struct AuthorizationCodeFlowTokenExchangeResponse {
+    access_token: String,
+    token_type: String,
+    expires_in: usize,
+}
 pub struct Client {
     authorization_tenant_domain: String,
     client_id: String,
@@ -168,6 +178,7 @@ impl Client {
         &self,
         code: &str,
         redirect_uri: Option<&str>,
+        audience: Option<&str>,
     ) -> Result<String, crate::Error> {
         if self.client_secret.is_none() {
             return Err(crate::Error::ClientSecretNotConfigured);
@@ -180,6 +191,7 @@ impl Client {
                 code: code.to_string(),
                 grant_type: "authorization_code".to_string(),
                 redirect_uri: redirect_uri.map(|s| s.to_string()),
+                // audience: audience.map(|s| s.to_string())
             };
         let response = self
             .client
