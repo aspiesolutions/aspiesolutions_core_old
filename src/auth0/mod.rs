@@ -18,7 +18,7 @@ impl Auth0Config {
         &self.client_id
     }
     pub fn client_secret(&self) -> Option<&str> {
-        self.client_secret().as_deref()
+        self.client_secret()
     }
     pub fn get_response_type(&self) -> &'static str {
         if self.client_secret.is_some() {
@@ -28,6 +28,10 @@ impl Auth0Config {
         }
     }
 }
+
+
+
+
 
 // an enum that represents the valid values of the 'authentication header'
 
