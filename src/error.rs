@@ -21,6 +21,8 @@ pub enum Error {
     ClientError(ClientError),
     #[error("{0}")]
     ApiError(ApiError),
+    #[error("{0}")]
+    TokioJoinError(String)
 }
 
 #[derive(Debug, PartialEq, Eq, thiserror::Error)]
@@ -101,5 +103,11 @@ impl std::convert::From<rmp_serde::decode::Error> for Error {
 impl std::convert::From<argon2::Error> for Error {
     fn from(e: argon2::Error) -> Self {
         Self::PasswordHashError(e.to_string())
+    }
+}
+#[cfg(feature="tokio")]
+impl std::convert::From<tokio::task::JoinError> for Error {
+    fn from(e: tokio::task::JoinError) -> Self {
+        Self::TokioJoinError(e.to_string())
     }
 }

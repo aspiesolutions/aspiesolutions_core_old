@@ -18,7 +18,8 @@ uuid-serde=["uuid/serde"]
 rocket-uuid=["rocket/uuid"]
 clone=[]
 debug=[]
-tokio=["dep:tokio"]
+tokio-single-thread=["tokio","tokio/rt"]
+tokio-multi-thread=["tokio","tokio/rt-multi-thread"]
 
 [dependencies]
 reqwest = { version = "0.11.13", default-features=false, optional = true }
@@ -32,4 +33,5 @@ chrono = "0.4.23"
 rust_decimal = "1.27.0"
 rust-argon2 = { version = "1.0.0", optional = true }
 tokio = { version = "1.24.1", features = ["sync"], optional = true }
+rand = "0.8.5"
 #figment = "0.10.8"
