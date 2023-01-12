@@ -110,7 +110,7 @@ pub enum AuthenticationHeader {
 
 pub struct Jwt(String);
 
-#[cfg_attr(feature = "serde", derive(serde::Serialize,serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AuthorizationCodeFlowTokenExchangeParameters {
     pub grant_type: String,
     pub client_id: String,
@@ -118,39 +118,59 @@ pub struct AuthorizationCodeFlowTokenExchangeParameters {
     pub code: String,
     pub redirect_uri: Option<String>,
 }
-#[cfg_attr(feature = "serde", derive(serde::Serialize,serde::Deserialize))]
-pub struct AuthorizationCodeFlowTokenExchangeResponse {
-
-}
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct AuthorizationCodeFlowTokenExchangeResponse {}
 pub struct Client {
     authorization_tenant_domain: String,
+    client_id: String,
+    client_secret: Option<String>,
     #[cfg(feature = "reqwest")]
     client: reqwest::Client,
 }
 impl Client {
-    pub fn new(authorization_tenant_domain: String) -> Self {
+    pub fn new(
+        authorization_tenant_domain: String,
+        client_id: String,
+        client_secret: Option<String>,
+    ) -> Self {
         Self {
             authorization_tenant_domain,
+            client_id,
+            client_secret,
             #[cfg(feature = "reqwest")]
             client: reqwest::Client::new(),
         }
     }
 }
+
 #[cfg(all(feature = "reqwest", feature = "serde"))]
 impl Client {
-    pub async fn exchange_code_for_token(
+    pub async fn exchange_authorization_code_for_token(
         &self,
-        params: &AuthorizationCodeFlowTokenExchangeParameters,
+        code: &str,
+        redirect_uri: Option<&str>,
     ) -> Result<String, crate::Error> {
+        if self.client_secret.is_none() {
+            return Err(crate::Error::ClientSecretNotConfigured);
+        }
+        let client_secret = self.client_secret.clone().unwrap();
+        let params: AuthorizationCodeFlowTokenExchangeParameters =
+            AuthorizationCodeFlowTokenExchangeParameters {
+                client_id: self.client_id.clone(),
+                client_secret,
+                code: code.to_string(),
+                grant_type: "authorization_code".to_string(),
+                redirect_uri: redirect_uri.map(|s| s.to_string()),
+            };
         let response = self
             .client
             .post(format!(
                 "https://{}/oauth/token",
                 self.authorization_tenant_domain
             ))
-            .json(params)
-            
-            .send().await?;
+            .json(&params)
+            .send()
+            .await?;
 
         let _status = response.status();
         let _headers = response.headers();

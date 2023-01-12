@@ -35,6 +35,9 @@ pub enum Error {
     CreateUserFailure {
         form_data: crate::forms::CreateOrUpdateUserFormData,
     },
+    // below errors for auth0
+    #[error("Calling this endpoint requires a client secret to be configured")]
+    ClientSecretNotConfigured,
 }
 
 #[cfg(feature = "sea-orm")]
