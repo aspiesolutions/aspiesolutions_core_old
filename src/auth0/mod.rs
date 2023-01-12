@@ -108,6 +108,16 @@ impl AuthStateHashMap {
         let mut write_guard = self.0.write().await;
         write_guard.insert(key.to_string(), tokio::sync::Mutex::new(state));
     }
+    pub async fn remove(&self,key:&str) -> Option<AuthState> {
+        let mut write_guard = self.0.write().await;
+        if let Some(mutex) = write_guard.remove(key) {
+            Some((*mutex.lock().await).clone())
+        }
+        else {
+            None
+        }
+
+    }
 }
 #[cfg(not(feature = "tokio"))]
 pub struct AuthStateHashMap(
