@@ -28,6 +28,9 @@ impl ServerConfig {
     pub fn use_https_in_uris(&self) -> bool {
         self.use_https_in_uris
     }
+    pub fn get_external_port(&self) -> &str {
+        self.external_port.unwrap_or("80")
+    }
 }
 // create a request guard that represents a user whos browser sends us an encrypted "session_id" token
 pub struct SessionIdCookie(uuid::Uuid);
