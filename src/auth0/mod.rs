@@ -72,18 +72,18 @@ impl AuthStateHashMap {
             tokio::sync::Mutex<AuthState>,
         >::new()))
     }
-    pub async fn get(&self, key: String) -> Option<AuthState> {
+    pub async fn get(&self, key: &str) -> Option<AuthState> {
         let read_guard = self.0.read().await;
-        if let Some(mutex) = read_guard.get(&key) {
+        if let Some(mutex) = read_guard.get(key) {
             let mutex_guard = mutex.lock().await;
             Some((*mutex_guard).clone())
         } else {
             None
         }
     }
-    pub async fn insert(&self, key: String, state: AuthState) {
+    pub async fn insert(&self, key: &str, state: AuthState) {
         let mut write_guard = self.0.write().await;
-        write_guard.insert(key, tokio::sync::Mutex::new(state));
+        write_guard.insert(key.to_string(), tokio::sync::Mutex::new(state));
     }
 }
 #[cfg(not(feature = "tokio"))]
