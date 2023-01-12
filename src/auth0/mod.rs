@@ -220,6 +220,10 @@ impl Client {
                 .json::<AuthorizationCodeFlowTokenExchangeResponse>()
                 .await
                 .map_err(|e| e.into()),
+            reqwest::StatusCode::BAD_REQUEST => {
+                println!("{}",response.text().await?);
+                todo!("bad request")
+            }
             not_yet_implemented=> {
                 todo!("{}",not_yet_implemented)
             }
