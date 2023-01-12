@@ -10,7 +10,8 @@ use std::str::FromStr;
 #[derive(Debug)]
 pub struct ServerConfig {
     domain: String,
-    use_https_in_uris:bool,
+    external_port: Option<String>,
+    use_https_in_uris: bool,
     database_url: String,
     auth0: crate::auth0::Auth0Config,
 }
