@@ -29,10 +29,6 @@ impl Auth0Config {
     }
 }
 
-
-
-
-
 // an enum that represents the valid values of the 'authentication header'
 
 pub enum AuthenticationHeader {
