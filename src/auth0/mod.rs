@@ -1,4 +1,3 @@
-use crate::Error;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct JwtClaims {}
 
@@ -34,7 +33,7 @@ pub fn generate_state_key() -> String {
     Alphanumeric.sample_string(&mut rand::thread_rng(), 128)
 }
 #[cfg(feature = "tokio")]
-pub async fn generate_random_state_key_async() -> Result<String, Error> {
+pub async fn generate_random_state_key_async() -> Result<String, crate::Error> {
     tokio::task::spawn(async move { generate_state_key() })
         .await
         .map_err(|e| e.into())
@@ -54,7 +53,7 @@ impl AuthState {
     pub fn set_return_to(&mut self, return_to: Option<String>) {
         self.return_to = return_to
     }
-    pub fn return_to(&self)->  Option<&str> {
+    pub fn return_to(&self) -> Option<&str> {
         self.return_to.as_ref().map(|s| s.as_str())
     }
 }
@@ -110,3 +109,44 @@ pub enum AuthenticationHeader {
 }
 
 pub struct Jwt(String);
+
+#[cfg(feature = "serde")]
+pub struct AuthorizationCodeFlowTokenExchangeParameters {
+    pub grant_type: String,
+    pub client_id: String,
+    pub client_secret: String,
+    pub code: String,
+    pub redirect_uri: Option<String>,
+}
+
+pub struct Client {
+    authorization_tenant_domain: String,
+    #[cfg(feature = "reqwest")]
+    client: reqwest::Client,
+}
+impl Client {
+    pub fn new(authorization_tenant_domain: String) -> Self {
+        Self {
+            authorization_tenant_domain,
+            #[cfg(feature = "reqwest")]
+            client: reqwest::Client::new(),
+        }
+    }
+}
+#[cfg(all(feature = "reqwest", feature = "serde"))]
+impl Client {
+    pub async fn exchange_code_for_token(
+        &self,
+        params: &AuthorizationCodeFlowTokenExchangeParameters,
+    ) -> Result<String, crate::Error> {
+        let response = self
+            .client
+            .post(format!(
+                "https://{}/oauth/token",
+                self.authorization_tenant_domain
+            ))
+            .json(params)
+            .await?;
+        Ok(String::new())
+    }
+}
