@@ -129,14 +129,14 @@ pub struct Client {
 }
 impl Client {
     pub fn new(
-        authorization_tenant_domain: String,
-        client_id: String,
-        client_secret: Option<String>,
+        authorization_tenant_domain: &str,
+        client_id: &str,
+        client_secret: Option<&str>,
     ) -> Self {
         Self {
-            authorization_tenant_domain,
-            client_id,
-            client_secret,
+            authorization_tenant_domain: authorization_tenant_domain.to_string(),
+            client_id: client_id.to_string(),
+            client_secret: client_secret.map(|s| s.to_string()),
             #[cfg(feature = "reqwest")]
             client: reqwest::Client::new(),
         }
