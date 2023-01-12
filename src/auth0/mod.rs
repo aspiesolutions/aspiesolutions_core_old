@@ -145,6 +145,7 @@ pub enum AuthenticationHeader {
 pub struct Jwt(String);
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(Debug))]
 pub struct AuthorizationCodeFlowTokenExchangeParameters {
     pub grant_type: String,
     pub client_id: String,
@@ -154,6 +155,7 @@ pub struct AuthorizationCodeFlowTokenExchangeParameters {
     pub redirect_uri: Option<String>,
 }
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(Debug))]
 pub struct AuthorizationCodeFlowTokenExchangeResponse {
     access_token: String,
     token_type: String,
