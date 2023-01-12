@@ -220,8 +220,8 @@ impl Client {
                 .json::<AuthorizationCodeFlowTokenExchangeResponse>()
                 .await
                 .map_err(|e| e.into()),
-            _ => {
-                todo!()
+            not_yet_implemented=> {
+                todo!("{}",not_yet_implemented)
             }
         }
     }
