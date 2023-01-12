@@ -178,8 +178,8 @@ impl Client {
         &self,
         code: &str,
         redirect_uri: Option<&str>,
-        audience: Option<&str>,
-    ) -> Result<String, crate::Error> {
+        // audience: Option<&str>,
+    ) -> Result<AuthorizationCodeFlowTokenExchangeResponse, crate::Error> {
         if self.client_secret.is_none() {
             return Err(crate::Error::ClientSecretNotConfigured);
         }
@@ -204,9 +204,15 @@ impl Client {
             .await?;
 
         let _status = response.status();
-        let _headers = response.headers();
-        let body = response.text().await?;
-        println!("response text {body}");
-        Ok(String::new())
+        // let _headers = response.headers();
+        match _status {
+            reqwest::StatusCode::OK => response
+                .json::<AuthorizationCodeFlowTokenExchangeResponse>()
+                .await
+                .map_err(|e| e.into()),
+            _ => {
+                todo!()
+            }
+        }
     }
 }
