@@ -29,7 +29,7 @@ impl ServerConfig {
         self.use_https_in_uris
     }
     pub fn get_external_port(&self) -> &str {
-        self.external_port.map(|s| &s).unwrap_or("80")
+        self.external_port.map(|s| s.as_str()).unwrap_or("80")
     }
 }
 // create a request guard that represents a user whos browser sends us an encrypted "session_id" token
