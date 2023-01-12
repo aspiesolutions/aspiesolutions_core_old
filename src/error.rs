@@ -22,7 +22,7 @@ pub enum Error {
     #[error("{0}")]
     ApiError(ApiError),
     #[error("{0}")]
-    TokioJoinError(String)
+    TokioJoinError(String),
 }
 
 #[derive(Debug, PartialEq, Eq, thiserror::Error)]
@@ -105,7 +105,7 @@ impl std::convert::From<argon2::Error> for Error {
         Self::PasswordHashError(e.to_string())
     }
 }
-#[cfg(feature="tokio")]
+#[cfg(feature = "tokio")]
 impl std::convert::From<tokio::task::JoinError> for Error {
     fn from(e: tokio::task::JoinError) -> Self {
         Self::TokioJoinError(e.to_string())

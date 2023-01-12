@@ -30,23 +30,35 @@ impl Auth0Config {
     }
 }
 pub fn generate_state_key() -> String {
-    use rand::distributions::{Alphanumeric,DistString};
-    Alphanumeric.sample_string(&mut rand::thread_rng(),256)
+    use rand::distributions::{Alphanumeric, DistString};
+    Alphanumeric.sample_string(&mut rand::thread_rng(), 256)
 }
-#[cfg(feature="tokio")]
-pub async fn generate_random_state_key_async() -> Result<String,Error> {
-    tokio::task::spawn(async move {
-       generate_state_key()
-    }).await.map_err(|e| e.into())
+#[cfg(feature = "tokio")]
+pub async fn generate_random_state_key_async() -> Result<String, Error> {
+    tokio::task::spawn(async move { generate_state_key() })
+        .await
+        .map_err(|e| e.into())
 }
-
 
 #[derive(Clone)]
-#[cfg_attr(feature="debug", derive(Debug))]
+#[cfg_attr(feature = "debug", derive(Debug))]
 pub struct AuthState {
     /// where to send the user after the auth flow completes
     return_to: Option<String>,
 }
+
+impl AuthState {
+    pub fn new() -> Self {
+        Self { return_to: None }
+    }
+    pub fn set_return_to(&mut self, return_to: Option<String>) {
+        self.return_to = return_to
+    }
+    pub fn return_to(&self)->  Option<&str> {
+        self.return_to.as_ref().map(|s| s.as_str())
+    }
+}
+
 #[cfg(feature = "tokio")]
 pub struct AuthStateHashMap(
     tokio::sync::RwLock<std::collections::HashMap<String, tokio::sync::Mutex<AuthState>>>,
@@ -60,26 +72,23 @@ impl AuthStateHashMap {
             tokio::sync::Mutex<AuthState>,
         >::new()))
     }
-    pub async fn get(&self,key:String) -> Option<AuthState> {
-            let read_guard = self.0.read().await;
-            if let Some(mutex) = read_guard.get(&key) {
-                let mutex_guard = mutex.lock().await;
-                Some((*mutex_guard).clone())
-            }
-            else {
-                None
-            }
-        
+    pub async fn get(&self, key: String) -> Option<AuthState> {
+        let read_guard = self.0.read().await;
+        if let Some(mutex) = read_guard.get(&key) {
+            let mutex_guard = mutex.lock().await;
+            Some((*mutex_guard).clone())
+        } else {
+            None
+        }
     }
-    pub async fn insert(&self,key:String,state:AuthState) {
+    pub async fn insert(&self, key: String, state: AuthState) {
         let mut write_guard = self.0.write().await;
-        write_guard.insert(key,tokio::sync::Mutex::new(state));
+        write_guard.insert(key, tokio::sync::Mutex::new(state));
     }
 }
 #[cfg(not(feature = "tokio"))]
 pub struct AuthStateHashMap(
     std::sync::RwLock<std::collections::HashMap<String, std::sync::Mutex<AuthState>>>,
-
 );
 
 #[cfg(not(feature = "tokio"))]
@@ -90,10 +99,9 @@ impl AuthStateHashMap {
             std::sync::Mutex<AuthState>,
         >::new()))
     }
-    pub fn get(&self,key:String) -> Option<AuthState> {
+    pub fn get(&self, key: String) -> Option<AuthState> {
         todo!()
     }
-  
 }
 // an enum that represents the valid values of the 'authentication header'
 
