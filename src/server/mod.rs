@@ -33,14 +33,17 @@ impl ServerConfig {
     pub fn database_url(&self) -> &str {
         &self.database_url
     }
-    /// gets the domain from the configuration. the domain must include the host:port if set
+    pub fn domain(&self) ->&str {
+        self.domain.as_str()
+    }
+    /// gets the domain from the configuration. The domain must include the host:port if set
     /// as some services treat "host:port" differently than "host" even if the ports can be assumed to be the same
-    pub fn domain(&self) -> &str {
-        if let Some(external_port) = self.external_port {
-            format!("{}:{}",server_config.domain(),self.external_port.as_ref().unwrap())
+    pub fn get_domain_and_port(&self) -> String {
+        if let Some(external_port) = self.external_port.as_ref() {
+            format!("{}:{}",self.domain(),external_port)
         }
         else {
-            self.domain.as_str()
+            self.domain.clone()
         }
     }
     pub fn auth0(&self) -> &crate::auth0::Auth0Config {
@@ -62,9 +65,9 @@ impl ServerConfig {
             "http://"
         }
     }
-
-    pub fn get_redirect_uri(&self) -> &str {
-
+    /// A helper function that makes a redirect uri that externally references a path on the currently configured server
+    pub fn make_external_redirect_uri(&self,path:&str) -> String {
+        format!("{0}{1}/{2}",self.get_external_proto(),self.get_domain_and_port(),path)
     }
 }
 // create a request guard that represents a user whos browser sends us an encrypted "session_id" token

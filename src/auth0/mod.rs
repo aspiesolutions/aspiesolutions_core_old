@@ -77,7 +77,15 @@ impl AuthState {
     }
 }
 
-
+/// A guard that represents an access token in a cookie
+pub struct AccessTokenCookieGuard(String);
+/// A guard that represents an access token in the authentication header
+pub struct AccessTokenAuthenticationHeaderGuard(String);
+/// a guard that represents all valid methods of authentication for this provider
+pub enum AccessTokenGuard {
+    AuthenticationHeader(AccessTokenAuthenticationHeaderGuard),
+    Cookie(AccessTokenCookieGuard)
+}
 #[cfg(feature="tokio")]
 impl AuthState {
     pub async fn generate_state_key_async() -> Result<String, crate::Error> {
