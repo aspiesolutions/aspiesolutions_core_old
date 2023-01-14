@@ -33,16 +33,7 @@ impl Auth0Config {
         }
     }
 }
-pub fn generate_state_key() -> String {
-    use rand::distributions::{Alphanumeric, DistString};
-    Alphanumeric.sample_string(&mut rand::thread_rng(), 128)
-}
-#[cfg(feature = "tokio")]
-pub async fn generate_random_state_key_async() -> Result<String, crate::Error> {
-    tokio::task::spawn(async move { generate_state_key() })
-        .await
-        .map_err(|e| e.into())
-}
+
 
 #[derive(Clone)]
 #[cfg_attr(feature = "debug", derive(Debug))]
@@ -79,6 +70,20 @@ impl AuthState {
     }
     pub fn redirect_uri(&self) -> Option<&str> {
         self.redirect_uri.as_ref().map(|s| s.as_str())
+    }
+    pub fn generate_state_key() -> String {
+        use rand::distributions::{Alphanumeric, DistString};
+        Alphanumeric.sample_string(&mut rand::thread_rng(), 128)
+    }
+}
+
+
+#[cfg(feature="tokio")]
+impl AuthState {
+    pub async fn generate_state_key_async() -> Result<String, crate::Error> {
+        tokio::task::spawn(async move { Self::generate_state_key() })
+            .await
+            .map_err(|e| e.into())
     }
 }
 
