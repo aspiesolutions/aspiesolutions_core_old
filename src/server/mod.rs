@@ -8,19 +8,40 @@ use std::str::FromStr;
 #[cfg_attr(feature = "serde", derive(serde::Deserialize))]
 #[cfg_attr(feature = "clone", derive(Clone))]
 #[derive(Debug)]
+/// This structure represents the top level server configuration struct
+/// and should be mounted with rocket::Adhoc::config<T>() as soon as possible on server startup
 pub struct ServerConfig {
+    /// the portion of the website url "a.example.com" that the server is hosted on.
+    /// this used with internal and external redirects
     domain: String,
+    /// An optional port number that can be configured in case your server
+    /// is not hosted on the default port for the current protocol.
+    /// 
+    /// Be aware that some services treat "host:port" differently than "host"
+    /// and configuring this external port may cause authentication to fail
+    /// if the authentication provider has not been correctly configured
+    /// to accept {proto}{domain}:{port}/{callback}
     external_port: Option<String>,
+    /// This setting configures whether or not to use http:// or https:// when building internal or external Uri's 
     use_https_in_uris: bool,
+    /// The connection string to use when connecting to the database. Only postgres:// or postgresql:// are supported by default
     database_url: String,
+    /// Configures our authentication provider. Currently there is only one supported provider
     auth0: crate::auth0::Auth0Config,
 }
 impl ServerConfig {
     pub fn database_url(&self) -> &str {
         &self.database_url
     }
+    /// gets the domain from the configuration. the domain must include the host:port if set
+    /// as some services treat "host:port" differently than "host" even if the ports can be assumed to be the same
     pub fn domain(&self) -> &str {
-        &self.domain
+        if let Some(external_port) = self.external_port {
+            format!("{}:{}",server_config.domain(),self.external_port.as_ref().unwrap())
+        }
+        else {
+            self.domain.as_str()
+        }
     }
     pub fn auth0(&self) -> &crate::auth0::Auth0Config {
         &self.auth0
@@ -28,6 +49,7 @@ impl ServerConfig {
     pub fn use_https_in_uris(&self) -> bool {
         self.use_https_in_uris
     }
+    // gets the external port
     pub fn get_external_port(&self) -> Option<&str> {
         self.external_port
             .as_ref()
@@ -39,6 +61,10 @@ impl ServerConfig {
         } else {
             "http://"
         }
+    }
+
+    pub fn get_redirect_uri(&self) -> &str {
+
     }
 }
 // create a request guard that represents a user whos browser sends us an encrypted "session_id" token
