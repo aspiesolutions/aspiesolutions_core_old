@@ -67,7 +67,7 @@ impl ServerConfig {
     }
     /// A helper function that makes a redirect uri that externally references a path on the currently configured server
     pub fn make_external_redirect_uri(&self,path:&str) -> String {
-        format!("{0}{1}/{2}",self.get_external_proto(),self.get_domain_and_port(),path)
+        format!("{0}{1}{2}",self.get_external_proto(),self.get_domain_and_port(),path)
     }
 }
 // create a request guard that represents a user whos browser sends us an encrypted "session_id" token
