@@ -1,5 +1,20 @@
+
+compile_error!("todo: work on token verification. verify tokens by fetching data using the auth0 management api");
+
+
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct JwtClaims {}
+
+
+
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "clone", derive(Clone))]
+#[allow(non_snake_case)]
+pub enum SigningAlgorythm {
+    RS256,
+    HS256
+}
 
 #[cfg_attr(feature = "serde", derive(serde::Deserialize))]
 #[cfg_attr(feature = "clone", derive(Clone))]
@@ -11,6 +26,7 @@ pub struct Auth0Config {
     client_secret: Option<String>,
     /// the default api identifier used when requesting access tokens
     api_audience: String,
+    management_api_audience: Option<String>
 }
 impl Auth0Config {
     pub fn authorization_tenant_domain(&self) -> &str {
@@ -183,28 +199,32 @@ impl AuthorizationCodeFlowTokenExchangeResponse {
         self.expires_in
     }
 }
+#[cfg_attr(feature = "clone", derive(Clone))]
 pub struct Client {
-    authorization_tenant_domain: String,
-    client_id: String,
-    client_secret: Option<String>,
+    config:Auth0Config,
     #[cfg(feature = "reqwest")]
     client: reqwest::Client,
 }
 impl Client {
     pub fn new(
-        authorization_tenant_domain: &str,
-        client_id: &str,
-        client_secret: Option<&str>,
+        config:Auth0Config
     ) -> Self {
         Self {
-            authorization_tenant_domain: authorization_tenant_domain.to_string(),
-            client_id: client_id.to_string(),
-            client_secret: client_secret.map(|s| s.to_string()),
+            config,
             #[cfg(feature = "reqwest")]
             client: reqwest::Client::new(),
         }
     }
 }
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ClientCredentialsTokenExhcangeParameters {
+    pub grant_type: String,
+    pub client_id:String,
+    pub client_secret:String,
+    pub audience:String
+}
+
+
 
 #[cfg(all(feature = "reqwest", feature = "serde"))]
 impl Client {
@@ -214,13 +234,13 @@ impl Client {
         redirect_uri: Option<&str>,
         // audience: Option<&str>,
     ) -> Result<AuthorizationCodeFlowTokenExchangeResponse, crate::Error> {
-        if self.client_secret.is_none() {
+        if self.config.client_secret.is_none() {
             return Err(crate::Error::ClientSecretNotConfigured);
         }
-        let client_secret = self.client_secret.clone().unwrap();
+        let client_secret = self.config.client_secret.clone().unwrap();
         let params: AuthorizationCodeFlowTokenExchangeParameters =
             AuthorizationCodeFlowTokenExchangeParameters {
-                client_id: self.client_id.clone(),
+                client_id: self.config.client_id.clone(),
                 client_secret,
                 code: code.to_string(),
                 grant_type: "authorization_code".to_string(),
@@ -231,7 +251,7 @@ impl Client {
             .client
             .post(format!(
                 "https://{}/oauth/token",
-                self.authorization_tenant_domain
+                self.config.authorization_tenant_domain
             ))
             .json(&params)
             .send()
@@ -254,4 +274,23 @@ impl Client {
             }
         }
     }
+    pub async fn get_jwks_from_oidc(&self) -> Result<jsonwebtoken::jwk::JwkSet,crate::Error> {
+        let response = self.client.get(format!("https://{}/.well-known/jwks.json",self.config.authorization_tenant_domain)).send().await?;
+        let jwks = response.json::<jsonwebtoken::jwk::JwkSet>().await?;
+        Ok(jwks)
+    }
+    pub async fn get_management_token(&self) -> Result<(),crate::Error> {
+        Ok(())
+
+    }
+    pub async fn verify_access_token(&self) -> Result<(),crate::Error> {
+        // find the decoding key
+        let _jwks = self.get_jwks_from_oidc().await?;
+        // get the signing key based on the active kid
+
+        // jwks.find(self.kid)
+        Ok(())
+    }
+
 }
+
