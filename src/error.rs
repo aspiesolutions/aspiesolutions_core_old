@@ -5,6 +5,10 @@ pub use crate::entity::sea_orm;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 // #[cfg_attr(feature="rocket",derive(rocket::response::Responder))]
 pub enum Error {
+    // for internal rust errors
+    #[error("{0}")]
+    PoisonError(String),
+
     #[error("A Database Error Occurred '{0}'")]
     // #[cfg_attr(feature="rocket",response(status=500))]
     DbError(String),
@@ -28,6 +32,10 @@ pub enum Error {
     ServerRespondedWithUnprocessableEntity,
     #[error("The operation failed because the server refused the request or did not find the requested resource.")]
     NotFoundOrRefused,
+    #[error("The operation failed because the server says that you are not authorized to perform this request: '{0}'")]
+    Unauthorized(String),
+    #[error("The operation failed because the server forbids it '{0}'")]
+    Forbidden(String),
     #[error("{0}")]
     TokioJoinError(String),
     //below errors are for apis
@@ -38,6 +46,8 @@ pub enum Error {
     // below errors for auth0
     #[error("Calling this endpoint requires a client secret to be configured")]
     ClientSecretNotConfigured,
+    #[error("{0}")]
+    FigmentError(String),
 }
 
 #[cfg(feature = "sea-orm")]
@@ -83,5 +93,16 @@ impl std::convert::From<argon2::Error> for Error {
 impl std::convert::From<tokio::task::JoinError> for Error {
     fn from(e: tokio::task::JoinError) -> Self {
         Self::TokioJoinError(e.to_string())
+    }
+}
+impl<T> std::convert::From<std::sync::PoisonError<T>> for Error {
+    fn from(e: std::sync::PoisonError<T>) -> Self {
+        Self::PoisonError(e.to_string())
+    }
+}
+#[cfg(feature = "figment")]
+impl std::convert::From<figment::Error> for Error {
+    fn from(e: figment::Error) -> Self {
+        Self::FigmentError(e.to_string())
     }
 }

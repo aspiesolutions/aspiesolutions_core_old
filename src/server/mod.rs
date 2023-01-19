@@ -16,13 +16,13 @@ pub struct ServerConfig {
     domain: String,
     /// An optional port number that can be configured in case your server
     /// is not hosted on the default port for the current protocol.
-    /// 
+    ///
     /// Be aware that some services treat "host:port" differently than "host"
     /// and configuring this external port may cause authentication to fail
     /// if the authentication provider has not been correctly configured
     /// to accept {proto}{domain}:{port}/{callback}
     external_port: Option<String>,
-    /// This setting configures whether or not to use http:// or https:// when building internal or external Uri's 
+    /// This setting configures whether or not to use http:// or https:// when building internal or external Uri's
     use_https_in_uris: bool,
     /// The connection string to use when connecting to the database. Only postgres:// or postgresql:// are supported by default
     database_url: String,
@@ -33,16 +33,15 @@ impl ServerConfig {
     pub fn database_url(&self) -> &str {
         &self.database_url
     }
-    pub fn domain(&self) ->&str {
+    pub fn domain(&self) -> &str {
         self.domain.as_str()
     }
     /// gets the domain from the configuration. The domain must include the host:port if set
     /// as some services treat "host:port" differently than "host" even if the ports can be assumed to be the same
     pub fn get_domain_and_port(&self) -> String {
         if let Some(external_port) = self.external_port.as_ref() {
-            format!("{}:{}",self.domain(),external_port)
-        }
-        else {
+            format!("{}:{}", self.domain(), external_port)
+        } else {
             self.domain.clone()
         }
     }
@@ -54,9 +53,7 @@ impl ServerConfig {
     }
     // gets the external port
     pub fn get_external_port(&self) -> Option<&str> {
-        self.external_port
-            .as_ref()
-            .map(|s| s.as_str())
+        self.external_port.as_ref().map(|s| s.as_str())
     }
     pub fn get_external_proto(&self) -> &str {
         if self.use_https_in_uris() == true {
@@ -66,8 +63,13 @@ impl ServerConfig {
         }
     }
     /// A helper function that makes a redirect uri that externally references a path on the currently configured server
-    pub fn make_external_redirect_uri(&self,path:&str) -> String {
-        format!("{0}{1}{2}",self.get_external_proto(),self.get_domain_and_port(),path)
+    pub fn make_external_redirect_uri(&self, path: &str) -> String {
+        format!(
+            "{0}{1}{2}",
+            self.get_external_proto(),
+            self.get_domain_and_port(),
+            path
+        )
     }
 }
 // create a request guard that represents a user whos browser sends us an encrypted "session_id" token
