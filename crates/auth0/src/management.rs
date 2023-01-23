@@ -1,6 +1,14 @@
+use const_format::concatcp;
 use std::collections::HashMap;
 
-use reqwest::{Response, StatusCode};
+const SUBJECT_SIGNING_KEYS: &str = "signing_keys";
+const ACTION_READ: &str = "read";
+const SCOPE_SEPERATOR:&str = ":";
+const SCOPE_READ_SIGING_KEYS: &str = concatcp!(ACTION_READ, SCOPE_SEPERATOR, SUBJECT_SIGNING_KEYS);
+
+// const SCOPE_WRITE:&str = "write";
+
+use reqwest::{Request, Response, StatusCode};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, thiserror::Error)]
 pub enum ManagementApiV2Error {
@@ -13,7 +21,11 @@ pub enum ManagementApiV2Error {
     #[error("Unauthorized. Check that you have a valid client id and client secret, and that your client has the correct permissions")]
     Unauthorized,
     #[error("Forbidden.")]
-    Forbidden
+    Forbidden,
+    #[error("We are not sure how to handle this response yet. Recieved status code {0}")]
+    UnhandledStatusCode(String),
+    #[error("Access token is missing a required scope {0}")]
+    AccessTokenMissingRequiredScope(String),
 }
 impl std::convert::From<reqwest::Error> for ManagementApiV2Error {
     fn from(error: reqwest::Error) -> Self {
@@ -39,32 +51,71 @@ pub struct ManagementApiV2Config {
     // make sure to use the domain provided by auth0 instead of custom domains
     // because of how audience values are formatted
 }
-#[derive(serde::Serialize,serde::Deserialize,Clone,Debug)]
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 pub struct AccessToken {
-    access_token:String,
-    scope:String,
-    iat:usize,
-    token_type:String
-    
+    access_token: String,
+    scope: String,
+    // iat: usize,
+    expires_in: usize,
+    token_type: String,
 }
-
-
 
 pub struct ManagementApiV2Client {
     client: reqwest::Client,
     config: ManagementApiV2Config,
-    access_token:String
+    access_token: AccessToken,
 }
 
 impl ManagementApiV2Client {
     pub async fn new(config: &ManagementApiV2Config) -> Result<Self, ManagementApiV2Error> {
         let client = reqwest::Client::new();
-        let token = Self::get_management_token(&client, &config).await?;
+        let access_token = Self::get_management_token(&client, &config).await?;
+        let signing_keys = Self::get_signing_keys(&client, config, &access_token).await?;
         Ok(Self {
             client,
             config: config.to_owned(),
-            access_token:String::new()
+            access_token,
         })
+    }
+    fn check_scopes(
+        scopes: &[&str],
+        access_token: &AccessToken,
+    ) -> Result<(), ManagementApiV2Error> {
+        for scope in scopes {
+            if !access_token.scope.contains(scope) {
+                return Err(ManagementApiV2Error::AccessTokenMissingRequiredScope(
+                    scope.to_string(),
+                ));
+            }
+        }
+        Ok(())
+    }
+    async fn get_signing_keys(
+        client: &reqwest::Client,
+        config: &ManagementApiV2Config,
+        access_token: &AccessToken,
+    ) -> Result<(), ManagementApiV2Error> {
+        log::debug!("getting signing keys");
+        // add some local permission checking
+        Self::check_scopes(&[SCOPE_READ_SIGING_KEYS], access_token)?;
+        let response = client
+            .get(format!(
+                "{PROTOCOL}{0}{API_ENDPOINT_PREFIX}keys/signing",
+                config.domain
+            ))
+            .header(
+                "Authorization",
+                format!("{BEARER_PREFIX}{0}", access_token.access_token),
+            )
+            .send()
+            .await?;
+        let status = response.status();
+        match status {
+            StatusCode::OK => Ok(()),
+            unhandled => Err(ManagementApiV2Error::UnhandledStatusCode(
+                unhandled.to_string(),
+            )),
+        }
     }
     async fn get_management_token(
         client: &reqwest::Client,
@@ -87,13 +138,15 @@ impl ManagementApiV2Client {
             StatusCode::OK => {
                 let token: AccessToken = response.json().await?;
                 Ok(token)
-            },
+            }
             StatusCode::TOO_MANY_REQUESTS => Err(ManagementApiV2Error::SlowDown),
             StatusCode::NOT_FOUND => Err(ManagementApiV2Error::NotFound),
-            StatusCode::UNAUTHORIZED=> Err(ManagementApiV2Error::Unauthorized),
-            unimplemented => {
-                log::debug!("unimplemented {unimplemented:#?}");
-                todo!("not yet implemented {unimplemented:#?}")
+            StatusCode::UNAUTHORIZED => Err(ManagementApiV2Error::Unauthorized),
+            unhandled => {
+                log::debug!("unhandled status code {unhandled:#?}");
+                Err(ManagementApiV2Error::UnhandledStatusCode(
+                    unhandled.to_string(),
+                ))
             }
         }
     }
@@ -116,6 +169,6 @@ pub mod tests {
     #[tokio::test]
     pub async fn auth0_management_v2_client_test_create_client() {
         let config = set_up_test();
-        let managemnt_api_v2_client = ManagementApiV2Client::new(&config).await;
+        let managemnt_api_v2_client = ManagementApiV2Client::new(&config).await.unwrap();
     }
 }
