@@ -1,3 +1,8 @@
+#[cfg(feature="reqwest")]
+/// this api is only available when activating feature reqwest
+pub mod management;
+
+
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct JwtClaims {}
 
@@ -316,20 +321,20 @@ impl Client {
             grant_type: "client_credentials".to_string(),
             client_id: self.config.client_id().to_string(),
             client_secret,
-            audience: format!(
-                "https://{}/api/v2/",
-                self.config.authorization_tenant_domain
-            ),
+            audience: audience.map_or_else(|| {
+                format!(
+                    "https://{}/api/v2/",
+                    self.config.authorization_tenant_domain
+                )
+            },|audience| audience.to_string()),
         };
         // use the configured domain unless an alternate was specified in this function
         let response = self
             .client
-            .post(audience.map(|s| s.to_string()).map_or_else(|| {
-                format!(
-                    "https://{}/oauth/token",
-                    self.config.authorization_tenant_domain
-                )
-            }))
+            .post(format!(
+                "https://{}/oauth/token",
+                self.config.authorization_tenant_domain
+            ))
             .form(&params)
             .send()
             .await?;
@@ -341,7 +346,7 @@ impl Client {
             reqwest::StatusCode::OK => {
                 let management_token_response: Auth0ManagementTokenResponse =
                     response.json().await?;
-                Ok(Auth0ManagementTokenResponse)
+                Ok(management_token_response)
             }
 
             reqwest::StatusCode::UNAUTHORIZED => {
@@ -397,6 +402,9 @@ pub mod test_client {
     pub async fn auth0_client_test_get_managment_token() {
         let client = test_set_up().unwrap();
 
-        let _ = client.get_management_token().await.unwrap();
+        let _ = client
+            .get_management_token(Some("https://aspiesolutions.us.auth0.com/api/v2/"))
+            .await
+            .unwrap();
     }
 }

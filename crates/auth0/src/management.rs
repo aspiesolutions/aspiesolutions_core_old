@@ -6,6 +6,14 @@ use reqwest::{Response, StatusCode};
 pub enum ManagementApiV2Error {
     #[error("ReqwestError: {0}")]
     ReqwestError(String),
+    #[error("Slow Down! Too many requests")]
+    SlowDown,
+    #[error("Not Found. Check your configuration and try again")]
+    NotFound,
+    #[error("Unauthorized. Check that you have a valid client id and client secret, and that your client has the correct permissions")]
+    Unauthorized,
+    #[error("Forbidden.")]
+    Forbidden
 }
 impl std::convert::From<reqwest::Error> for ManagementApiV2Error {
     fn from(error: reqwest::Error) -> Self {
@@ -31,10 +39,21 @@ pub struct ManagementApiV2Config {
     // make sure to use the domain provided by auth0 instead of custom domains
     // because of how audience values are formatted
 }
+#[derive(serde::Serialize,serde::Deserialize,Clone,Debug)]
+pub struct AccessToken {
+    access_token:String,
+    scope:String,
+    iat:usize,
+    token_type:String
+    
+}
+
+
 
 pub struct ManagementApiV2Client {
     client: reqwest::Client,
     config: ManagementApiV2Config,
+    access_token:String
 }
 
 impl ManagementApiV2Client {
@@ -44,12 +63,13 @@ impl ManagementApiV2Client {
         Ok(Self {
             client,
             config: config.to_owned(),
+            access_token:String::new()
         })
     }
     async fn get_management_token(
         client: &reqwest::Client,
         config: &ManagementApiV2Config,
-    ) -> Result<(), ManagementApiV2Error> {
+    ) -> Result<AccessToken, ManagementApiV2Error> {
         let mut form_data: HashMap<&str, &str> = HashMap::new();
         form_data.insert("client_id", &config.client_id);
         form_data.insert("client_secret", &config.client_secret);
@@ -61,11 +81,16 @@ impl ManagementApiV2Client {
             .form(&form_data)
             .send()
             .await?;
-        let headers = response.headers();
+        let _headers = response.headers();
         let status = response.status();
         match status {
-            StatusCode::OK => Ok(()),
-            StatusCode::TOO_MANY_REQUESTS => Ok(()),
+            StatusCode::OK => {
+                let token: AccessToken = response.json().await?;
+                Ok(token)
+            },
+            StatusCode::TOO_MANY_REQUESTS => Err(ManagementApiV2Error::SlowDown),
+            StatusCode::NOT_FOUND => Err(ManagementApiV2Error::NotFound),
+            StatusCode::UNAUTHORIZED=> Err(ManagementApiV2Error::Unauthorized),
             unimplemented => {
                 log::debug!("unimplemented {unimplemented:#?}");
                 todo!("not yet implemented {unimplemented:#?}")
