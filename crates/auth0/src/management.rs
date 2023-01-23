@@ -1,27 +1,46 @@
 use const_format::concatcp;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 const SUBJECT_SIGNING_KEYS: &str = "signing_keys";
 const ACTION_READ: &str = "read";
-const SCOPE_SEPERATOR:&str = ":";
+const SCOPE_SEPERATOR: &str = ":";
 const SCOPE_READ_SIGING_KEYS: &str = concatcp!(ACTION_READ, SCOPE_SEPERATOR, SUBJECT_SIGNING_KEYS);
 
+const HEADER_X_RATELIMIT_LIMIT: &str = "X-RateLimit-Limit";
+const HEADER_X_RATELIMIT_REMAINING: &str = "X-RateLimit-Remaining";
+const HEADER_X_RATELIMIT_RESET: &str = "X-RateLimit-Reset";
 // const SCOPE_WRITE:&str = "write";
 
-use reqwest::{Request, Response, StatusCode};
+use reqwest::{header::HeaderMap, Request, Response, StatusCode};
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, thiserror::Error)]
 pub enum ManagementApiV2Error {
     #[error("ReqwestError: {0}")]
     ReqwestError(String),
+    #[error("{0}")]
+    HeaderValueToStrError(String),
+    #[error("{0}")]
+    ParseIntError(String),
     #[error("Slow Down! Too many requests")]
     SlowDown,
     #[error("Not Found. Check your configuration and try again")]
     NotFound,
-    #[error("Unauthorized. Check that you have a valid client id and client secret, and that your client has the correct permissions")]
-    Unauthorized,
-    #[error("Forbidden.")]
-    Forbidden,
+    #[error("Unauthorized. Error: {error} '{error_description}'")]
+    Unauthorized {
+        error: String,
+        error_description: String,
+    },
+    #[error("Forbidden. Error: {error} '{error_description}")]
+    Forbidden {
+        error: String,
+        error_description: String,
+    },
+    #[error("Bad Request. Error: {error} '{error_description}'")]
+    BadRequest {
+        error: String,
+        error_description: String,
+    },
     #[error("We are not sure how to handle this response yet. Recieved status code {0}")]
     UnhandledStatusCode(String),
     #[error("Access token is missing a required scope {0}")]
@@ -30,6 +49,16 @@ pub enum ManagementApiV2Error {
 impl std::convert::From<reqwest::Error> for ManagementApiV2Error {
     fn from(error: reqwest::Error) -> Self {
         Self::ReqwestError(error.to_string())
+    }
+}
+impl std::convert::From<reqwest::header::ToStrError> for ManagementApiV2Error {
+    fn from(value: reqwest::header::ToStrError) -> Self {
+        Self::HeaderValueToStrError(value.to_string())
+    }
+}
+impl std::convert::From<std::num::ParseIntError> for ManagementApiV2Error {
+    fn from(value: std::num::ParseIntError) -> Self {
+        Self::ParseIntError(value.to_string())
     }
 }
 // an instance of a client used to communicate with the auth0 management api
@@ -59,22 +88,64 @@ pub struct AccessToken {
     expires_in: usize,
     token_type: String,
 }
+#[derive(Deserialize, Debug, Clone)]
+pub struct ErrorResponse {
+    error: String,
+    error_description: String,
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RateLimit {
+    limit: usize,
+    remaining: usize,
+    reset: usize,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SigningKey {
+    pub kid: String,
+    pub cert: String,
+    pub pcks7: Option<String>,
+    pub current: Option<bool>,
+    pub next: Option<bool>,
+    pub previous: Option<bool>,
+    pub current_since: Option<String>,
+    pub current_until: Option<String>,
+    pub fingerpring: String,
+    pub thumbprint: String,
+    pub revoked: Option<String>,
+    pub revoked_at: Option<String>,
+}
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct SigningKeys(Vec<SigningKey>);
+impl SigningKeys {
+    pub fn get_current_key(&self) -> Option<SigningKey> {
+        self.0
+            .iter()
+            .find(|o_k| o_k.current == Some(true))
+            .map(|k| k.to_owned())
+    }
+}
 
 pub struct ManagementApiV2Client {
     client: reqwest::Client,
     config: ManagementApiV2Config,
     access_token: AccessToken,
+    signing_keys: SigningKeys,
 }
 
 impl ManagementApiV2Client {
+    /// Creates a new instance of a management client
+    /// attempts to get an access token and signing keys on creation
+    /// as these are the bare minimum requirements to verify a token
     pub async fn new(config: &ManagementApiV2Config) -> Result<Self, ManagementApiV2Error> {
         let client = reqwest::Client::new();
-        let access_token = Self::get_management_token(&client, &config).await?;
-        let signing_keys = Self::get_signing_keys(&client, config, &access_token).await?;
+        let access_token = Self::_get_management_token(&client, &config).await?;
+        let signing_keys = Self::_get_signing_keys(&client, config, &access_token).await?;
         Ok(Self {
             client,
             config: config.to_owned(),
             access_token,
+            signing_keys,
         })
     }
     fn check_scopes(
@@ -90,11 +161,34 @@ impl ManagementApiV2Client {
         }
         Ok(())
     }
-    async fn get_signing_keys(
+    fn get_ratelimit_from_headers(headers: &HeaderMap) -> Result<RateLimit, ManagementApiV2Error> {
+        let ratelimit_limit: usize = headers
+            .get(HEADER_X_RATELIMIT_LIMIT)
+            .unwrap()
+            .to_str()?
+            .parse()?;
+        let ratelimit_remaining: usize = headers
+            .get(HEADER_X_RATELIMIT_REMAINING)
+            .unwrap()
+            .to_str()?
+            .parse()?;
+        let ratelimit_reset: usize = headers
+            .get(HEADER_X_RATELIMIT_RESET)
+            .unwrap()
+            .to_str()?
+            .parse()?;
+        log::debug!("{HEADER_X_RATELIMIT_LIMIT}: {ratelimit_limit:?}, {HEADER_X_RATELIMIT_REMAINING}: {ratelimit_remaining:?}, {HEADER_X_RATELIMIT_RESET}:{ratelimit_reset:?}");
+        Ok(RateLimit {
+            limit: ratelimit_limit,
+            remaining: ratelimit_remaining,
+            reset: ratelimit_reset,
+        })
+    }
+    async fn _get_signing_keys(
         client: &reqwest::Client,
         config: &ManagementApiV2Config,
         access_token: &AccessToken,
-    ) -> Result<(), ManagementApiV2Error> {
+    ) -> Result<SigningKeys, ManagementApiV2Error> {
         log::debug!("getting signing keys");
         // add some local permission checking
         Self::check_scopes(&[SCOPE_READ_SIGING_KEYS], access_token)?;
@@ -109,15 +203,51 @@ impl ManagementApiV2Client {
             )
             .send()
             .await?;
+        let headers = response.headers();
+        let _ratelimit = Self::get_ratelimit_from_headers(&headers)?;
         let status = response.status();
         match status {
-            StatusCode::OK => Ok(()),
+            StatusCode::OK => {
+                let signing_keys: SigningKeys = response.json().await?;
+                Ok(signing_keys)
+            }
+            StatusCode::BAD_REQUEST => {
+                let ErrorResponse {
+                    error,
+                    error_description,
+                } = response.json().await?;
+                log::debug!("Bad Request: {error:?} {error_description}");
+                Err(ManagementApiV2Error::BadRequest {
+                    error,
+                    error_description,
+                })
+            }
+            StatusCode::UNAUTHORIZED => {
+                let ErrorResponse {
+                    error,
+                    error_description,
+                } = response.json().await?;
+                log::debug!("Unauthorized {error:?}");
+                Err(ManagementApiV2Error::Unauthorized {
+                    error,
+                    error_description,
+                })
+            }
+            StatusCode::FORBIDDEN => {
+                let response_text = response.text().await?;
+                log::debug!("Forbidden: {response_text}");
+                Err(ManagementApiV2Error::Forbidden {
+                    error: String::new(),
+                    error_description: String::new(),
+                })
+            }
             unhandled => Err(ManagementApiV2Error::UnhandledStatusCode(
                 unhandled.to_string(),
             )),
         }
     }
-    async fn get_management_token(
+
+    async fn _get_management_token(
         client: &reqwest::Client,
         config: &ManagementApiV2Config,
     ) -> Result<AccessToken, ManagementApiV2Error> {
@@ -132,7 +262,9 @@ impl ManagementApiV2Client {
             .form(&form_data)
             .send()
             .await?;
-        let _headers = response.headers();
+        let headers = response.headers();
+        // check the rate limit
+        let _ratelimit = Self::get_ratelimit_from_headers(&headers)?;
         let status = response.status();
         match status {
             StatusCode::OK => {
@@ -141,7 +273,10 @@ impl ManagementApiV2Client {
             }
             StatusCode::TOO_MANY_REQUESTS => Err(ManagementApiV2Error::SlowDown),
             StatusCode::NOT_FOUND => Err(ManagementApiV2Error::NotFound),
-            StatusCode::UNAUTHORIZED => Err(ManagementApiV2Error::Unauthorized),
+            StatusCode::UNAUTHORIZED => Err(ManagementApiV2Error::Unauthorized {
+                error: String::new(),
+                error_description: String::new(),
+            }),
             unhandled => {
                 log::debug!("unhandled status code {unhandled:#?}");
                 Err(ManagementApiV2Error::UnhandledStatusCode(
@@ -149,6 +284,12 @@ impl ManagementApiV2Client {
                 ))
             }
         }
+    }
+    pub fn get_management_token(&self) -> AccessToken {
+        self.access_token.clone()
+    }
+    pub fn get_signing_keys(&self) -> SigningKeys {
+        self.signing_keys.clone()
     }
 }
 

@@ -28,6 +28,7 @@ tokio-multi-thread=["tokio", "tokio/rt-multi-thread"]
 figment=["dep:figment"]
 
 [dependencies]
+aspiesolutions_auth0_client={path="./crates/auth0"}
 reqwest = { version = "0.11.13", default-features = false, optional = true }
 rocket = { version = "0.5.0-rc.2", default-features=false, features=["msgpack","secrets"], optional = true }
 serde = { version = "1.0.150", optional = true, features = ["derive"] }
