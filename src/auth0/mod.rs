@@ -18,6 +18,14 @@ pub struct RegularWebAppConfig {
     // the api audience to use when getting api tokens
     pub api_audience: String,
 }
+impl RegularWebAppConfig {
+    pub fn get_app_protocol(&self) -> String {
+        self.app_protocol.as_ref().map(|app_protocol| app_protocol.clone()).unwrap_or_else(||DEFAULT_APP_PROTOCOL.to_string())
+    }
+    pub fn get_app_port(&self) -> String {
+        self.app_port.as_ref().map(|app_port|":".to_string() + app_port).unwrap_or_else(|| String::new())
+    }
+}
 pub const DEFAULT_APP_PROTOCOL: &str = "http://";
 pub const TENANT_PROTOCOL: &str = "https://";
 pub const AUTHORIZE_ENDPOINT: &str = "/authorize";
