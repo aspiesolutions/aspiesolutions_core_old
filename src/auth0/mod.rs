@@ -15,7 +15,9 @@ pub struct RegularWebAppConfig {
     /// an optional port to append to the domain. domain:port is treated differently than domain by itelf
     pub app_port:Option<String>,
     // the protocol to use when building application links
-    pub app_protocol:Option<String>
+    pub app_protocol:Option<String>,
+    // the api audience to use when getting api tokens
+    pub api_audience: String
 }
 #[cfg_attr(feature="serde", derive(serde::Deserialize))]
 #[derive(Clone,Debug)]
