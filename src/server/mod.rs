@@ -27,7 +27,7 @@ pub struct ServerConfig {
     /// The connection string to use when connecting to the database. Only postgres:// or postgresql:// are supported by default
     database_url: String,
     // Configures our authentication provider. Currently Auth0 is the only programmed/ supported provider
-    auth: crate::auth0::Config
+    auth: crate::auth0::RegularWebAppConfig
 }
 impl ServerConfig {
     pub fn database_url(&self) -> &str {
@@ -71,7 +71,7 @@ impl ServerConfig {
             path
         )
     }
-    pub fn auth(&self) -> &crate::auth0::Config {
+    pub fn auth(&self) -> &crate::auth0::RegularWebAppConfig {
         &self.auth
     }
 
