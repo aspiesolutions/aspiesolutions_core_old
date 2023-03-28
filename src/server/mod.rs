@@ -26,8 +26,8 @@ pub struct ServerConfig {
     use_https_in_uris: bool,
     /// The connection string to use when connecting to the database. Only postgres:// or postgresql:// are supported by default
     database_url: String,
-    /// Configures our authentication provider. Currently there is only one supported provider
-    auth0: crate::auth0::Auth0Config,
+    // Configures our authentication provider. Currently there is only one supported provider
+    // auth0: crate::auth0::Auth0Config,
 }
 impl ServerConfig {
     pub fn database_url(&self) -> &str {
@@ -45,9 +45,9 @@ impl ServerConfig {
             self.domain.clone()
         }
     }
-    pub fn auth0(&self) -> &crate::auth0::Auth0Config {
-        &self.auth0
-    }
+    // pub fn auth0(&self) -> &crate::auth0::Auth0Config {
+    //     &self.auth0
+    // }
     pub fn use_https_in_uris(&self) -> bool {
         self.use_https_in_uris
     }
